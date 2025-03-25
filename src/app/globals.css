@@ -1,0 +1,68 @@
+@import "tailwindcss";
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Additional dark mode styles */
+.dark .bg-white {
+  background-color: #1a1a1a;
+}
+
+.dark .text-gray-900 {
+  color: #f3f3f3;
+}
+
+.dark .text-gray-700 {
+  color: #d1d1d1;
+}
+
+.dark .text-gray-600 {
+  color: #b0b0b0;
+}
+
+.dark .border-gray-300 {
+  border-color: #3a3a3a;
+}
+
+.dark .bg-gray-50 {
+  background-color: #2a2a2a;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1f1f1f;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #2a2a2a;
+}
+
+.dark .hover\:text-gray-900:hover {
+  color: #ffffff;
+}
+
+/* Keep header background black in both themes */
+.dark .bg-black {
+  background-color: #000000;
+}
