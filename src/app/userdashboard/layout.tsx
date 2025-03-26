@@ -5,9 +5,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, User, ClipboardList, Menu, X } from "lucide-react";
+import { LayoutDashboard, User, ClipboardList } from "lucide-react";
+import { XMarkIcon, Bars3Icon } from "@heroicons/react/24/outline";
 import { cn } from "@/app/lib/utils";
-import UserDashboardHeader from "@/components/dashboard/UserDashboardHeader";
+import UserDashboardHeader, {
+  HEADER_HEIGHT,
+} from "@/components/dashboard/UserDashboardHeader";
 
 interface UserDashboardLayoutProps {
   children: React.ReactNode;
@@ -26,33 +29,35 @@ const navItems = [
 export default function UserDashboardLayout({
   children,
 }: UserDashboardLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if we're on mobile
+  // Handle screen size detection and set sidebar state
   useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
+    const checkIsMobile = () => {
+      const mobileView = window.innerWidth < 1024; // lg breakpoint in tailwind
+      setIsMobile(mobileView);
+      // Set sidebar state based on screen size
+      setSidebarOpen(!mobileView);
     };
 
-    // Initial check
-    checkIfMobile();
+    // Check on initial load
+    checkIsMobile();
 
-    // Set sidebar closed by default on mobile
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
+    // Add event listener for window resize
+    window.addEventListener("resize", checkIsMobile);
 
-    // Update on resize
-    window.addEventListener("resize", checkIfMobile);
-    return () => window.removeEventListener("resize", checkIfMobile);
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", checkIsMobile);
+    };
   }, []);
 
-  // Handle click outside sidebar to close it (on mobile only)
+  // Handle clicks outside the sidebar to close it on mobile
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    function handleClickOutside(event: MouseEvent) {
       if (
         isMobile &&
         sidebarOpen &&
@@ -61,86 +66,82 @@ export default function UserDashboardLayout({
       ) {
         setSidebarOpen(false);
       }
-    };
+    }
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [sidebarOpen, isMobile]);
-
-  // Prevent scrolling of body when mobile sidebar is open
-  useEffect(() => {
-    if (isMobile) {
-      if (sidebarOpen) {
-        document.body.style.overflow = "hidden";
-      } else {
-        document.body.style.overflow = "auto";
-      }
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [sidebarOpen, isMobile]);
+  }, [isMobile, sidebarOpen]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Handle navigation click on mobile
+  const handleNavClick = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-zinc-900">
-      {/* Header */}
-      <UserDashboardHeader
-        toggleSidebar={toggleSidebar}
-        sidebarOpen={sidebarOpen}
-        isMobile={isMobile}
-      />
+    <div className="min-h-screen bg-gray-100 dark:bg-zinc-900 flex flex-col">
+      {/* Header - pass toggleSidebar for mobile use */}
+      <UserDashboardHeader toggleSidebar={toggleSidebar} />
 
-      {/* Overlay for mobile (when sidebar is open) */}
-      {isMobile && sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-10"
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+      <div className="flex flex-1">
+        {/* Overlay for mobile when sidebar is open */}
+        {isMobile && sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-gray-600/50 backdrop-blur-sm z-20"
+            aria-hidden="true"
+          />
+        )}
 
-      <div className="flex">
-        {/* Sidebar */}
+        {/* Sidebar - positioned below header with offset based on the HEADER_HEIGHT constant */}
         <aside
           ref={sidebarRef}
+          style={{
+            top: HEADER_HEIGHT,
+            height: `calc(100vh - ${HEADER_HEIGHT})`,
+          }}
           className={cn(
-            "bg-white dark:bg-zinc-800 h-[calc(100vh-64px)] shadow-lg fixed left-0 top-16 z-20 transition-all duration-300",
+            "bg-white dark:bg-zinc-800 shadow-lg fixed left-0 z-20 transition-all duration-300 overflow-hidden", // Lower z-index than header
             isMobile
               ? sidebarOpen
-                ? "translate-x-0 w-64"
-                : "-translate-x-full"
+                ? "w-64 translate-x-0"
+                : "w-0 -translate-x-full"
               : sidebarOpen
               ? "w-56"
-              : "w-20",
-            "overflow-y-auto"
+              : "w-20"
           )}
         >
           <div
             className={cn(
               "border-b border-gray-200 dark:border-zinc-700 flex items-center transition-all duration-300",
-              sidebarOpen || isMobile
+              sidebarOpen
                 ? "p-4 justify-between"
+                : isMobile
+                ? "hidden"
                 : "justify-center py-4"
             )}
           >
-            {(sidebarOpen || isMobile) && (
+            {sidebarOpen && (
               <span className="font-medium text-gray-800 dark:text-white">
                 Menu
               </span>
             )}
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors lg:block hidden"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
               aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
             >
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              {sidebarOpen ? (
+                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <Bars3Icon className="h-5 w-5" aria-hidden="true" />
+              )}
             </button>
           </div>
           {/* Navigation */}
@@ -152,20 +153,18 @@ export default function UserDashboardLayout({
                   <li key={item.name}>
                     <Link
                       href={item.href}
+                      onClick={handleNavClick}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
                         isActive
                           ? "bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
                           : "hover:bg-gray-100 dark:hover:bg-zinc-700",
-                        !sidebarOpen && !isMobile && "justify-center py-3"
+                        !sidebarOpen && "justify-center py-3"
                       )}
-                      title={!sidebarOpen && !isMobile ? item.name : undefined}
-                      onClick={
-                        isMobile ? () => setSidebarOpen(false) : undefined
-                      }
+                      title={!sidebarOpen ? item.name : undefined}
                     >
                       <item.icon size={24} />
-                      {(sidebarOpen || isMobile) && <span>{item.name}</span>}
+                      {sidebarOpen && <span>{item.name}</span>}
                     </Link>
                   </li>
                 );
@@ -174,14 +173,23 @@ export default function UserDashboardLayout({
           </nav>
         </aside>
 
-        {/* Main content */}
+        {/* Main content - spacing adjusted based on HEADER_HEIGHT */}
         <main
+          style={{ paddingTop: "1.5rem" }}
           className={cn(
             "flex-1 p-6 transition-all duration-300",
-            !isMobile && (sidebarOpen ? "lg:ml-56" : "lg:ml-20")
+            isMobile ? "ml-0" : sidebarOpen ? "ml-56" : "ml-20",
+            isMobile && sidebarOpen ? "pointer-events-none" : ""
           )}
         >
-          <div className="container mx-auto">{children}</div>
+          <div
+            className={cn(
+              "container mx-auto transition-all duration-300",
+              isMobile && sidebarOpen ? "blur-sm" : ""
+            )}
+          >
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -41,7 +41,8 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="bg-black">
       <nav
         aria-label="Global"
-        className="flex items-center justify-between p-6 lg:px-8"
+        className="flex items-center justify-between px-6 lg:px-8"
+        style={{ height: "84px" }} // Fixed height of 65px to match UserDashboardHeader
       >
         <div className="flex lg:flex-1">
           <a href="/" className="-m-1.5 p-1.5">
