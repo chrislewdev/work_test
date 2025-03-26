@@ -3,37 +3,42 @@
 "use client";
 
 import React, { useState } from "react";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { User, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ui_blocks/ThemeToggle";
-import Image from "next/image";
 
 interface UserDashboardHeaderProps {
-  sidebarOpen: boolean;
   toggleSidebar: () => void;
+  sidebarOpen: boolean;
+  isMobile: boolean;
 }
 
 export default function UserDashboardHeader({
-  sidebarOpen,
   toggleSidebar,
+  sidebarOpen,
+  isMobile,
 }: UserDashboardHeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
-    <header className="bg-black text-white sticky top-0 z-20">
+    <header className="bg-black text-white sticky top-0 z-30">
       <nav
         aria-label="Global"
         className="flex items-center justify-between p-4 lg:px-8"
       >
         <div className="flex lg:flex-1">
           <div className="flex items-center gap-4">
-            <button
-              onClick={toggleSidebar}
-              className="p-2 rounded-md hover:bg-gray-800 transition-colors"
-              aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
-            >
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            {/* Show menu toggle button on mobile */}
+            {isMobile && (
+              <button
+                onClick={toggleSidebar}
+                className="p-2 rounded-md hover:bg-gray-800 transition-colors"
+                aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+              >
+                {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            )}
+
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">TailAdmin</span>
               <span className="text-xl font-bold">TailAdmin</span>
