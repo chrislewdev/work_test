@@ -4,14 +4,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation"; // Added useRouter
+import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, User, ClipboardList } from "lucide-react";
 import { XMarkIcon, Bars3Icon } from "@heroicons/react/24/outline";
 import { cn } from "@/app/lib/utils";
 import UserDashboardHeader, {
   HEADER_HEIGHT,
 } from "@/components/dashboard/UserDashboardHeader";
-import useAuthStore from "@/stores/authStore"; // Added useAuthStore import
+import useAuthStore from "@/stores/authStore";
 
 interface UserDashboardLayoutProps {
   children: React.ReactNode;
@@ -35,11 +35,11 @@ export default function UserDashboardLayout({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Add authentication state and router
+  // Authentication state and router
   const { isAuthenticated, user } = useAuthStore();
   const router = useRouter();
 
-  // Add authentication check
+  // Authentication check
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login");

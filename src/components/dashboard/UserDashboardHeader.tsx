@@ -116,13 +116,6 @@ export const UserDashboardHeader: React.FC<UserDashboardHeaderProps> = ({
 
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 py-2 bg-white dark:bg-zinc-800 rounded-md shadow-lg z-50">
-                  <Link
-                    href="/userdashboard/profile"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-700"
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    <span>Profile</span>
-                  </Link>
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-700 w-full text-left"
@@ -208,14 +201,6 @@ export const UserDashboardHeader: React.FC<UserDashboardHeaderProps> = ({
               </span>
               <ThemeToggle />
             </div>
-
-            <Link
-              href="/userdashboard/profile"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-700"
-              onClick={() => setUserMenuOpen(false)}
-            >
-              Profile
-            </Link>
 
             <button
               onClick={handleLogout}
