@@ -39,20 +39,6 @@ const NavigationWrapper: React.FC = () => {
             <span className="absolute inset-x-1 -bottom-px h-px bg-gradient-to-r from-zinc-500/0 via-zinc-500/70 to-zinc-500/0 dark:from-zinc-400/0 dark:via-zinc-400/40 dark:to-zinc-400/0" />
           )}
         </Link>
-
-        <Link
-          href="/dashboard"
-          className={`relative px-3 py-1.5 text-sm font-medium transition ${
-            pathname === "/dashboard"
-              ? "text-zinc-900 dark:text-zinc-100"
-              : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-          }`}
-        >
-          Settings
-          {pathname === "/dashboard" && (
-            <span className="absolute inset-x-1 -bottom-px h-px bg-gradient-to-r from-zinc-500/0 via-zinc-500/70 to-zinc-500/0 dark:from-zinc-400/0 dark:via-zinc-400/40 dark:to-zinc-400/0" />
-          )}
-        </Link>
       </div>
     </nav>
   );

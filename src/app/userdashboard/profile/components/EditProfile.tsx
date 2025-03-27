@@ -1,60 +1,103 @@
-// app/dashboard/components/EditAddress.tsx
+// app/userdashboard/profile/components/EditProfile.tsx
 
-import React from "react";
+import React, { useState, useRef } from "react";
+import Image from "next/image";
 
-interface EditAddressProps {
-  addressData: {
-    country: string;
-    cityState: string;
-    postalCode: string;
-    taxId: string;
+interface EditProfileProps {
+  profileData: {
+    firstName: string;
+    lastName: string;
+    title: string;
+    location: string;
+    profilePic: string;
   };
   onCancel: () => void;
   onSave: (data: any) => void;
 }
 
-export default function EditAddress({
-  addressData,
+export default function EditProfile({
+  profileData,
   onCancel,
   onSave,
-}: EditAddressProps) {
-  const [formData, setFormData] = React.useState({
-    country: addressData.country,
-    cityState: addressData.cityState,
-    postalCode: addressData.postalCode,
-    taxId: addressData.taxId,
+}: EditProfileProps) {
+  const [formData, setFormData] = useState({
+    firstName: profileData.firstName,
+    lastName: profileData.lastName,
+    title: profileData.title,
+    location: profileData.location,
   });
+
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    // In a real app, handle image upload here
+    onSave({ ...formData, profilePic: previewImage || profileData.profilePic });
   };
 
   return (
     <div className="rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40 mt-6">
       <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">
-        Edit Address
+        Edit Profile
       </h2>
 
       <form onSubmit={handleSubmit}>
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative overflow-hidden rounded-full ring-2 ring-zinc-200 dark:ring-zinc-700 shadow-md w-24 h-24 mb-4">
+            <Image
+              src={previewImage || profileData.profilePic}
+              alt="Profile picture"
+              width={96}
+              height={96}
+              className="object-cover"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+          >
+            Change Profile Picture
+          </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept="image/*"
+            className="hidden"
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label
-              htmlFor="country"
+              htmlFor="firstName"
               className="block text-sm text-zinc-500 dark:text-zinc-400 mb-1"
             >
-              Country
+              First Name
             </label>
             <input
               type="text"
-              id="country"
-              name="country"
-              value={formData.country}
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
               onChange={handleChange}
               className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
               required
@@ -62,16 +105,16 @@ export default function EditAddress({
           </div>
           <div>
             <label
-              htmlFor="cityState"
+              htmlFor="lastName"
               className="block text-sm text-zinc-500 dark:text-zinc-400 mb-1"
             >
-              City/State
+              Last Name
             </label>
             <input
               type="text"
-              id="cityState"
-              name="cityState"
-              value={formData.cityState}
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
               onChange={handleChange}
               className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
               required
@@ -79,33 +122,32 @@ export default function EditAddress({
           </div>
           <div>
             <label
-              htmlFor="postalCode"
+              htmlFor="title"
               className="block text-sm text-zinc-500 dark:text-zinc-400 mb-1"
             >
-              Postal Code
+              Title
             </label>
             <input
               type="text"
-              id="postalCode"
-              name="postalCode"
-              value={formData.postalCode}
+              id="title"
+              name="title"
+              value={formData.title}
               onChange={handleChange}
               className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
-              required
             />
           </div>
           <div>
             <label
-              htmlFor="taxId"
+              htmlFor="location"
               className="block text-sm text-zinc-500 dark:text-zinc-400 mb-1"
             >
-              TAX ID
+              Location
             </label>
             <input
               type="text"
-              id="taxId"
-              name="taxId"
-              value={formData.taxId}
+              id="location"
+              name="location"
+              value={formData.location}
               onChange={handleChange}
               className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
             />

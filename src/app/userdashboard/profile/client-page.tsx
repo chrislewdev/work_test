@@ -1,4 +1,4 @@
-// app/dashboard/client-page.tsx
+// app/userdashboard/profile/client-page.tsx
 
 "use client";
 
@@ -13,14 +13,12 @@ import {
   TikTokIcon,
   XiaohongshuIcon,
 } from "@/components/ui_blocks/SocialIcons";
-import NavigationWrapper from "@/components/ui_blocks/NavigationWrapper";
 import Button from "@/components/ui_blocks/Button";
 import EditPersonalInfo from "./components/EditPersonalInfo";
 import EditAddress from "./components/EditAddress";
 import EditProfile from "./components/EditProfile";
 import useAuthStore from "@/stores/authStore";
 import useProfileStore from "@/stores/profileStore";
-import Header from "@/components/header/Header";
 
 function EditIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
@@ -38,27 +36,6 @@ function EditIcon(props: React.ComponentPropsWithoutRef<"svg">) {
       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
     </svg>
-  );
-}
-
-function ProfileHeader() {
-  const { logout } = useAuthStore();
-
-  return (
-    <div className="rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Profile
-        </h2>
-        <Button
-          variant="secondary"
-          className="flex items-center gap-2"
-          onClick={logout}
-        >
-          Sign Out
-        </Button>
-      </div>
-    </div>
   );
 }
 
@@ -376,12 +353,7 @@ export default function DashboardClientPage() {
 
   return (
     <>
-      <Header />
-      <Container>
-        <NavigationWrapper />
-      </Container>
       <Container className="mt-16 max-w-4xl mx-auto">
-        <ProfileHeader />
         {profileLoading && (
           <div className="bg-yellow-50 border border-yellow-100 text-yellow-800 rounded-md p-3 mt-4">
             Saving changes...

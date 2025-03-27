@@ -1,7 +1,6 @@
-// app/dashboard/components/EditPersonalInfo.tsx
+// app/userdashboard/profile/components/EditPersonalInfo.tsx
 
 import React from "react";
-import { useRouter } from "next/navigation";
 
 interface EditPersonalInfoProps {
   profileData: {

@@ -1,13 +1,13 @@
 // app/userdashboard/profile/page.tsx
 
 import React from "react";
-import ProfileContent from "@/components/dashboard/ProfileContent";
+import DashboardClientPage from "./client-page";
 
 export const metadata = {
-  title: "User Profile",
-  description: "User profile management page",
+  title: "User Dashboard",
+  description: "View and edit your profile information",
 };
 
-export default function ProfilePage() {
-  return <ProfileContent />;
+export default function DashboardPage() {
+  return <DashboardClientPage />;
 }
