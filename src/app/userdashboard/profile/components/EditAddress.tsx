@@ -36,93 +36,180 @@ export default function EditAddress({
   };
 
   return (
-    <div className="rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40 mt-6">
-      <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">
-        Edit Address
-      </h2>
+    <div className="bg-white rounded-lg p-6 border border-gray-100">
+      <h2 className="text-xl font-semibold text-gray-800 mb-6">Edit Address</h2>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Mobile layout */}
+        <div className="md:hidden space-y-4">
           <div>
             <label
-              htmlFor="country"
-              className="block text-sm text-zinc-500 dark:text-zinc-400 mb-1"
+              htmlFor="country-mobile"
+              className="block text-sm text-gray-500 mb-1"
             >
               Country
             </label>
             <input
               type="text"
-              id="country"
+              id="country-mobile"
               name="country"
               value={formData.country}
               onChange={handleChange}
-              className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800"
               required
             />
           </div>
           <div>
             <label
-              htmlFor="cityState"
-              className="block text-sm text-zinc-500 dark:text-zinc-400 mb-1"
+              htmlFor="cityState-mobile"
+              className="block text-sm text-gray-500 mb-1"
             >
               City/State
             </label>
             <input
               type="text"
-              id="cityState"
+              id="cityState-mobile"
               name="cityState"
               value={formData.cityState}
               onChange={handleChange}
-              className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800"
               required
             />
           </div>
           <div>
             <label
-              htmlFor="postalCode"
-              className="block text-sm text-zinc-500 dark:text-zinc-400 mb-1"
+              htmlFor="postalCode-mobile"
+              className="block text-sm text-gray-500 mb-1"
             >
               Postal Code
             </label>
             <input
               type="text"
-              id="postalCode"
+              id="postalCode-mobile"
               name="postalCode"
               value={formData.postalCode}
               onChange={handleChange}
-              className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800"
               required
             />
           </div>
           <div>
             <label
-              htmlFor="taxId"
-              className="block text-sm text-zinc-500 dark:text-zinc-400 mb-1"
+              htmlFor="taxId-mobile"
+              className="block text-sm text-gray-500 mb-1"
             >
               TAX ID
             </label>
             <input
               type="text"
-              id="taxId"
+              id="taxId-mobile"
               name="taxId"
               value={formData.taxId}
               onChange={handleChange}
-              className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800"
+            />
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              type="submit"
+              className="rounded-full bg-gray-800 py-2.5 text-white hover:bg-gray-700 text-sm"
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-full border border-gray-300 py-2.5 text-gray-700 hover:bg-gray-50 text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop layout */}
+        <div className="hidden md:grid md:grid-cols-2 md:gap-6">
+          <div>
+            <label
+              htmlFor="country-desktop"
+              className="block text-sm text-gray-500 mb-1"
+            >
+              Country
+            </label>
+            <input
+              type="text"
+              id="country-desktop"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800"
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="cityState-desktop"
+              className="block text-sm text-gray-500 mb-1"
+            >
+              City/State
+            </label>
+            <input
+              type="text"
+              id="cityState-desktop"
+              name="cityState"
+              value={formData.cityState}
+              onChange={handleChange}
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800"
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="postalCode-desktop"
+              className="block text-sm text-gray-500 mb-1"
+            >
+              Postal Code
+            </label>
+            <input
+              type="text"
+              id="postalCode-desktop"
+              name="postalCode"
+              value={formData.postalCode}
+              onChange={handleChange}
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800"
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="taxId-desktop"
+              className="block text-sm text-gray-500 mb-1"
+            >
+              TAX ID
+            </label>
+            <input
+              type="text"
+              id="taxId-desktop"
+              name="taxId"
+              value={formData.taxId}
+              onChange={handleChange}
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800"
             />
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        {/* Desktop buttons */}
+        <div className="hidden md:flex mt-6 justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-md border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 text-sm"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="rounded-md bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200"
+            className="rounded-md bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 text-sm"
           >
             Save Changes
           </button>

@@ -22,8 +22,8 @@ import useProfileStore from "@/stores/profileStore";
 function EditIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
     <svg
-      width="24"
-      height="24"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -119,78 +119,71 @@ export default function DashboardClientPage() {
     }
 
     return (
-      <div className="rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40 mt-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-          <div className="relative overflow-hidden rounded-full ring-2 ring-zinc-200 dark:ring-zinc-700 shadow-md w-24 h-24">
-            <Image
-              src={currentUser.profilePic || "/images/photos/profile-pic.jpg"}
-              alt="Profile picture"
-              width={96}
-              height={96}
-              className="object-cover"
-              priority
-            />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-              {currentUser.firstName} {currentUser.lastName}
-            </h2>
-            <p className="text-zinc-600 dark:text-zinc-400">
-              {currentUser.title} | {currentUser.location}
-            </p>
-            <div className="flex gap-4 mt-4">
-              <Link
-                href="#"
-                aria-label="Facebook"
-                className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="h-6 w-6 fill-current"
-                >
-                  <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
-                </svg>
-              </Link>
-              <Link
-                href="#"
-                aria-label="X (Twitter)"
-                className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-              >
-                <XIcon className="h-6 w-6 fill-current" />
-              </Link>
-              <Link
-                href="#"
-                aria-label="Instagram"
-                className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-              >
-                <InstagramIcon className="h-6 w-6 fill-current" />
-              </Link>
-              <Link
-                href="#"
-                aria-label="TikTok"
-                className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-              >
-                <TikTokIcon className="h-6 w-6 fill-current" />
-              </Link>
-              <Link
-                href="#"
-                aria-label="Xiaohongshu"
-                className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-              >
-                <XiaohongshuIcon className="h-6 w-6 fill-current" />
-              </Link>
+      <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 mb-6">
+        {/* Profile card */}
+        <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between">
+          <div className="flex flex-col md:flex-row items-center mb-4 md:mb-0">
+            <div className="relative overflow-hidden rounded-full w-20 h-20 mb-4 md:mb-0 md:mr-4 border-4 border-white shadow">
+              <Image
+                src={currentUser.profilePic || "/images/photos/profile-pic.jpg"}
+                alt="Profile picture"
+                width={80}
+                height={80}
+                className="object-cover"
+                priority
+              />
+            </div>
+            <div className="text-center md:text-left">
+              <h3 className="text-xl font-bold text-gray-800">
+                {currentUser.firstName} {currentUser.lastName}
+              </h3>
+              <p className="text-blue-600">
+                {currentUser.title || "Team Manager"}
+              </p>
+              <p className="text-gray-500 text-sm">
+                {currentUser.location || "Arizona, United States"}
+              </p>
             </div>
           </div>
-          <Button
-            variant="secondary"
-            className="flex items-center gap-2"
-            onClick={() => setEditingProfile(true)}
-            disabled={profileLoading}
-          >
-            <EditIcon className="h-4 w-4" />
-            Edit
-          </Button>
+
+          <div className="flex gap-2 mt-4 md:mt-0">
+            <Link href="#" className="hover:opacity-80">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
+                  <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                </svg>
+              </div>
+            </Link>
+            <Link href="#" className="hover:opacity-80">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                <XIcon className="h-4 w-4 fill-current" />
+              </div>
+            </Link>
+            <Link href="#" className="hover:opacity-80">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4 fill-current"
+                >
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </div>
+            </Link>
+            <Link href="#" className="hover:opacity-80">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                <InstagramIcon className="h-4 w-4 fill-current" />
+              </div>
+            </Link>
+            <button
+              onClick={() => setEditingProfile(true)}
+              className="ml-2 px-3 py-1 text-sm rounded-full border border-blue-500 text-blue-600 hover:bg-blue-50 flex items-center gap-1"
+              disabled={profileLoading}
+            >
+              <EditIcon className="h-3.5 w-3.5" />
+              Edit
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -214,57 +207,45 @@ export default function DashboardClientPage() {
     }
 
     return (
-      <div className="rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40 mt-6">
+      <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 mb-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+          <h2 className="text-lg font-bold text-gray-800">
             Personal Information
           </h2>
-          <Button
-            variant="secondary"
-            className="flex items-center gap-2"
+
+          <button
+            className="ml-2 px-3 py-1 text-sm rounded-full border border-blue-500 text-blue-600 hover:bg-blue-50 flex items-center gap-1"
             onClick={() => setEditingPersonalInfo(true)}
             disabled={profileLoading}
           >
-            <EditIcon className="h-4 w-4" />
+            <EditIcon className="h-3.5 w-3.5" />
             Edit
-          </Button>
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
           <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              First Name
-            </p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.firstName}
-            </p>
+            <p className="text-sm text-gray-500 mb-1">First Name</p>
+            <p className="text-gray-800 font-medium">{currentUser.firstName}</p>
           </div>
           <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Last Name
-            </p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.lastName}
-            </p>
+            <p className="text-sm text-gray-500 mb-1">Last Name</p>
+            <p className="text-gray-800 font-medium">{currentUser.lastName}</p>
           </div>
           <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Email address
-            </p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.email}
-            </p>
+            <p className="text-sm text-gray-500 mb-1">Email address</p>
+            <p className="text-gray-800 font-medium">{currentUser.email}</p>
           </div>
           <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Phone</p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.phone || "Not provided"}
+            <p className="text-sm text-gray-500 mb-1">Phone</p>
+            <p className="text-gray-800 font-medium">
+              {currentUser.phone || "+09 343 398 45"}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Bio</p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.bio || "No bio provided"}
+          <div className="md:col-span-2">
+            <p className="text-sm text-gray-500 mb-1">Bio</p>
+            <p className="text-gray-800 font-medium">
+              {currentUser.bio || "Team Manager"}
             </p>
           </div>
         </div>
@@ -289,49 +270,43 @@ export default function DashboardClientPage() {
     }
 
     return (
-      <div className="rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40 mt-6">
+      <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-            Address
-          </h2>
-          <Button
-            variant="secondary"
-            className="flex items-center gap-2"
+          <h2 className="text-lg font-bold text-gray-800">Address</h2>
+
+          <button
+            className="ml-2 px-3 py-1 text-sm rounded-full border border-blue-500 text-blue-600 hover:bg-blue-50 flex items-center gap-1"
             onClick={() => setEditingAddress(true)}
             disabled={profileLoading}
           >
-            <EditIcon className="h-4 w-4" />
+            <EditIcon className="h-3.5 w-3.5" />
             Edit
-          </Button>
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
           <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Country</p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.country || "Not provided"}
+            <p className="text-sm text-gray-500 mb-1">Country</p>
+            <p className="text-gray-800 font-medium">
+              {currentUser.country || "United States"}
             </p>
           </div>
           <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              City/State
-            </p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.cityState || "Not provided"}
+            <p className="text-sm text-gray-500 mb-1">City/State</p>
+            <p className="text-gray-800 font-medium">
+              {currentUser.cityState || "Arizona, United States."}
             </p>
           </div>
           <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Postal Code
-            </p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.postalCode || "Not provided"}
+            <p className="text-sm text-gray-500 mb-1">Postal Code</p>
+            <p className="text-gray-800 font-medium">
+              {currentUser.postalCode || "ERT 2489"}
             </p>
           </div>
           <div>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">TAX ID</p>
-            <p className="text-zinc-900 dark:text-zinc-100">
-              {currentUser.taxId || "Not provided"}
+            <p className="text-sm text-gray-500 mb-1">TAX ID</p>
+            <p className="text-gray-800 font-medium">
+              {currentUser.taxId || "AS4568384"}
             </p>
           </div>
         </div>
@@ -340,22 +315,24 @@ export default function DashboardClientPage() {
   }
 
   return (
-    <>
-      <Container className="mt-16 max-w-4xl mx-auto">
-        {profileLoading && (
-          <div className="bg-yellow-50 border border-yellow-100 text-yellow-800 rounded-md p-3 mt-4">
-            Saving changes...
+    <div>
+      <div className="container mx-auto px-4">
+        <div className="max-w-5xl mx-auto">
+          {/* Main profile header outside of cards */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Profile</h1>
           </div>
-        )}
-        {profileError && (
-          <div className="bg-red-50 border border-red-100 text-red-700 rounded-md p-3 mt-4">
-            Error: {profileError}
+
+          {/* Wrapper box containing all profile components */}
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6">
+            <div className="space-y-6">
+              <ProfileCard />
+              <PersonalInformation />
+              <Address />
+            </div>
           </div>
-        )}
-        <ProfileCard />
-        <PersonalInformation />
-        <Address />
-      </Container>
-    </>
+        </div>
+      </div>
+    </div>
   );
 }
