@@ -1,4 +1,4 @@
-// components/auth/LoginForm.tsx
+// src/components/auth/LoginForm.tsx
 
 "use client";
 
@@ -18,10 +18,10 @@ const LoginForm: React.FC = () => {
   const { login, isAuthenticated, loading, error, clearError } = useAuthStore();
   const { fetchProfile } = useProfileStore();
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated - changed from /dashboard to /userdashboard
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard");
+      router.push("/userdashboard");
     }
   }, [isAuthenticated, router]);
 

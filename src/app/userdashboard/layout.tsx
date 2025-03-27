@@ -1,16 +1,17 @@
-// app/userdashboard/layout.tsx
+// src/app/userdashboard/layout.tsx
 
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation"; // Added useRouter
 import { LayoutDashboard, User, ClipboardList } from "lucide-react";
 import { XMarkIcon, Bars3Icon } from "@heroicons/react/24/outline";
 import { cn } from "@/app/lib/utils";
 import UserDashboardHeader, {
   HEADER_HEIGHT,
 } from "@/components/dashboard/UserDashboardHeader";
+import useAuthStore from "@/stores/authStore"; // Added useAuthStore import
 
 interface UserDashboardLayoutProps {
   children: React.ReactNode;
@@ -33,6 +34,17 @@ export default function UserDashboardLayout({
   const pathname = usePathname();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Add authentication state and router
+  const { isAuthenticated, user } = useAuthStore();
+  const router = useRouter();
+
+  // Add authentication check
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, router]);
 
   // Handle screen size detection and set sidebar state
   useEffect(() => {
@@ -84,6 +96,11 @@ export default function UserDashboardLayout({
       setSidebarOpen(false);
     }
   };
+
+  // If not authenticated, don't render the dashboard layout
+  if (!isAuthenticated) {
+    return null; // Return null to avoid flickering during redirect
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-zinc-900 flex flex-col">

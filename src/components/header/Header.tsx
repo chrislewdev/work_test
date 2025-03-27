@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
       <nav
         aria-label="Global"
         className="flex items-center justify-between px-6 lg:px-8"
-        style={{ height: "84px" }} // Fixed height of 65px to match UserDashboardHeader
+        style={{ height: "84px" }}
       >
         <div className="flex lg:flex-1">
           <a href="/" className="-m-1.5 p-1.5">
@@ -66,7 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
             <ThemeToggle />
           </div>
           {isAuthenticated && displayUser ? (
-            <Link href="/dashboard" className="flex items-center gap-3">
+            <Link href="/userdashboard" className="flex items-center gap-3">
               <span className="text-sm/6 font-semibold text-white">
                 {displayUser.firstName} {displayUser.lastName}
               </span>

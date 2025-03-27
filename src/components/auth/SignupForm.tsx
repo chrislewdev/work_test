@@ -26,7 +26,7 @@ const SignupForm: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard");
+      router.push("/userdashboard");
     }
   }, [isAuthenticated, router]);
 

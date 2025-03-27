@@ -1,7 +1,7 @@
-// app/userdashboard/page.tsx
+// src/app/userdashboard/page.tsx
 
 import React from "react";
-import DashboardContent from "@/components/dashboard/DashboardContent";
+import UserDashboardClientPage from "./client-page";
 
 export const metadata = {
   title: "User Dashboard",
@@ -9,5 +9,5 @@ export const metadata = {
 };
 
 export default function UserDashboardPage() {
-  return <DashboardContent />;
+  return <UserDashboardClientPage />;
 }

@@ -1,11 +1,10 @@
-// app/userdashboard/profile/client-page.tsx
+// src/app/userdashboard/profile/client-page.tsx
 
 "use client";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui_blocks/Container";
 import {
   InstagramIcon,
@@ -40,38 +39,28 @@ function EditIcon(props: React.ComponentPropsWithoutRef<"svg">) {
 }
 
 export default function DashboardClientPage() {
-  const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { user } = useAuthStore();
   const {
     profile,
     loading: profileLoading,
     error: profileError,
     fetchProfile,
     updateProfile,
-    clearProfile,
   } = useProfileStore();
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [editingPersonalInfo, setEditingPersonalInfo] = useState(false);
   const [editingAddress, setEditingAddress] = useState(false);
 
-  // Redirect if not authenticated
+  // Fetch profile if not already loaded
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-    } else if (user && !profile) {
-      // If authenticated but no profile loaded, fetch it
+    if (user && !profile) {
       fetchProfile(user.id);
     }
-  }, [isAuthenticated, user, profile, router, fetchProfile]);
-
-  // If still loading or not authenticated, show nothing yet
-  if (!user || !isAuthenticated) {
-    return <div className="flex justify-center p-8">Loading...</div>;
-  }
+  }, [user, profile, fetchProfile]);
 
   // If profile is loading, show loading state
-  if (profileLoading) {
+  if (profileLoading && !profile) {
     return (
       <div className="flex justify-center p-8">Loading profile data...</div>
     );
@@ -93,7 +82,6 @@ export default function DashboardClientPage() {
     );
   }
 
-  // Ensure we have a user profile for TypeScript
   const currentUser = profile;
 
   // Handlers for updates
