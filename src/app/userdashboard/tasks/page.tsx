@@ -1,13 +1,13 @@
 // app/userdashboard/tasks/page.tsx
 
-import React from "react";
-import TaskManagementContent from "@/components/dashboard/TaskManagementContent";
+import { Metadata } from "next";
+import TasksPageClient from "./client";
 
-export const metadata = {
-  title: "Task Management",
-  description: "Manage your tasks and projects",
+export const metadata: Metadata = {
+  title: "Task Management | User Dashboard",
+  description: "Manage your tasks, track progress, and stay organized",
 };
 
 export default function TasksPage() {
-  return <TaskManagementContent />;
+  return <TasksPageClient />;
 }
