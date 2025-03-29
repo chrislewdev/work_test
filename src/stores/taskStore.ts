@@ -21,7 +21,7 @@ export interface Task {
   dateCreated: string;
   deadline: string;
   budget: number;
-  status: "available" | "in-progress" | "completed";
+  status: "to do" | "in progress" | "completed";
 }
 
 // Sort options for tasks

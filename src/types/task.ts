@@ -17,7 +17,7 @@ export interface Task {
   dateCreated: string;
   deadline: string;
   budget: number;
-  status: string;
+  status: "to do" | "in progress" | "completed";
 }
 
 export type TaskStatus = "to do" | "in progress" | "completed";
