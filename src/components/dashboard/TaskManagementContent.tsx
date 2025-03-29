@@ -15,7 +15,9 @@ import { Task } from "@/types/task";
 // Direct import of task data
 import taskData from "@/app/lib/userTaskData.json";
 
-const ITEMS_PER_PAGE = 12; // 3 columns x 4 rows
+// Different page sizes based on screen size
+const DESKTOP_ITEMS_PER_PAGE = 12; // 3 columns x 4 rows
+const MOBILE_ITEMS_PER_PAGE = 4; // 4 items for mobile view
 
 const TaskManagementContent: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -58,10 +60,34 @@ const TaskManagementContent: React.FC = () => {
   const inProgressTasks = tasks.filter((task) => task.status === "in progress");
   const completedTasks = tasks.filter((task) => task.status === "completed");
 
-  // Calculate pagination
+  // State to track screen size
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Detect screen size
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is the md breakpoint in Tailwind
+    };
+
+    // Check on initial load
+    checkIsMobile();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkIsMobile);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", checkIsMobile);
+    };
+  }, []);
+
+  // Calculate pagination based on screen size
   const getPaginatedTasks = (taskList: Task[]) => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return taskList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const itemsPerPage = isMobile
+      ? MOBILE_ITEMS_PER_PAGE
+      : DESKTOP_ITEMS_PER_PAGE;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return taskList.slice(startIndex, startIndex + itemsPerPage);
   };
 
   // Get tasks based on active tab
@@ -79,6 +105,7 @@ const TaskManagementContent: React.FC = () => {
   };
 
   // Calculate total pages - ensures at least 1 page even if empty
+  // Now accounts for different page sizes on mobile vs desktop
   const getTotalPages = () => {
     let total;
     switch (activeTab) {
@@ -95,28 +122,80 @@ const TaskManagementContent: React.FC = () => {
         total = 0;
     }
 
-    return Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+    const itemsPerPage = isMobile
+      ? MOBILE_ITEMS_PER_PAGE
+      : DESKTOP_ITEMS_PER_PAGE;
+    return Math.max(1, Math.ceil(total / itemsPerPage));
   };
 
-  // Render pagination - now a separate function for reuse
+  // Render pagination - with fixed position for navigation buttons and max 5 page numbers on desktop
   const renderPagination = () => {
+    const totalPages = getTotalPages();
+
+    // Function to determine which page numbers to show
+    const getVisiblePageNumbers = () => {
+      // On mobile, show limited page numbers (max 3)
+      if (isMobile) {
+        // Determine which page numbers to show (current, previous, next)
+        const pageNumbers = new Set<number>();
+
+        // Always add current page
+        pageNumbers.add(currentPage);
+
+        // Add previous page if it exists
+        if (currentPage > 1) {
+          pageNumbers.add(currentPage - 1);
+        }
+
+        // Add next page if it exists
+        if (currentPage < totalPages) {
+          pageNumbers.add(currentPage + 1);
+        }
+
+        // Convert to array and sort
+        return Array.from(pageNumbers).sort((a, b) => a - b);
+      }
+
+      // On desktop, show max 5 page numbers
+      // Strategy: Show current page in the middle when possible, with 2 pages before and 2 after
+      let start = Math.max(1, currentPage - 2);
+      let end = Math.min(totalPages, start + 4);
+
+      // Adjust start if we hit the upper limit
+      if (end === totalPages) {
+        start = Math.max(1, end - 4);
+      }
+
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    };
+
+    const visiblePageNumbers = getVisiblePageNumbers();
+    const pageNumbersContainerWidth = isMobile ? "120px" : "200px";
+
     return (
       <div className="mt-6 flex justify-center">
-        <nav className="flex items-center gap-1">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700"
-          >
-            Previous
-          </button>
+        <nav className="flex items-center">
+          {/* Previous button - fixed width */}
+          <div className="w-20">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700"
+            >
+              Previous
+            </button>
+          </div>
 
-          {Array.from({ length: getTotalPages() }, (_, i) => i + 1).map(
-            (page) => (
+          {/* Page numbers container - fixed width */}
+          <div
+            className="flex items-center justify-center"
+            style={{ width: pageNumbersContainerWidth }}
+          >
+            {visiblePageNumbers.map((page) => (
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-medium ${
+                className={`w-8 h-8 mx-1 flex items-center justify-center rounded-md text-sm font-medium ${
                   currentPage === page
                     ? "bg-blue-600 text-white"
                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700"
@@ -124,80 +203,94 @@ const TaskManagementContent: React.FC = () => {
               >
                 {page}
               </button>
-            )
-          )}
+            ))}
+          </div>
 
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, getTotalPages()))
-            }
-            disabled={currentPage === getTotalPages()}
-            className="px-3 py-1 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700"
-          >
-            Next
-          </button>
+          {/* Next button - fixed width */}
+          <div className="w-20 text-right">
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, getTotalPages()))
+              }
+              disabled={currentPage === getTotalPages()}
+              className="px-3 py-1 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700"
+            >
+              Next
+            </button>
+          </div>
         </nav>
       </div>
     );
   };
 
+  // Array of tab data for easy mapping
+  const tabData = [
+    {
+      id: "all",
+      label: "All Tasks",
+      count: tasks.length,
+    },
+    {
+      id: "todo",
+      label: "To Do",
+      count: todoTasks.length,
+    },
+    {
+      id: "inprogress",
+      label: "In Progress",
+      count: inProgressTasks.length,
+    },
+    {
+      id: "completed",
+      label: "Completed",
+      count: completedTasks.length,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm overflow-hidden">
         <div className="border-b border-gray-200 dark:border-zinc-700">
-          <div className="flex overflow-x-auto">
-            <button
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-                activeTab === "all"
-                  ? "text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              }`}
-              onClick={() => handleTabChange("all")}
-            >
-              All Tasks{" "}
-              <span className="ml-1 rounded-full bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 text-xs">
-                {isLoading ? "..." : tasks.length}
-              </span>
-            </button>
-            <button
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-                activeTab === "todo"
-                  ? "text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              }`}
-              onClick={() => handleTabChange("todo")}
-            >
-              To Do{" "}
-              <span className="ml-1 rounded-full bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 text-xs">
-                {isLoading ? "..." : todoTasks.length}
-              </span>
-            </button>
-            <button
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-                activeTab === "inprogress"
-                  ? "text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              }`}
-              onClick={() => handleTabChange("inprogress")}
-            >
-              In Progress{" "}
-              <span className="ml-1 rounded-full bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 text-xs">
-                {isLoading ? "..." : inProgressTasks.length}
-              </span>
-            </button>
-            <button
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-                activeTab === "completed"
-                  ? "text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              }`}
-              onClick={() => handleTabChange("completed")}
-            >
-              Completed{" "}
-              <span className="ml-1 rounded-full bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 text-xs">
-                {isLoading ? "..." : completedTasks.length}
-              </span>
-            </button>
+          {/* Mobile view: 2x2 grid layout */}
+          <div className="grid grid-cols-2 md:hidden">
+            {tabData.map((tab) => (
+              <button
+                key={tab.id}
+                className={`px-3 py-3 text-sm font-medium flex flex-col items-center justify-center ${
+                  activeTab === tab.id
+                    ? "text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
+                onClick={() => handleTabChange(tab.id)}
+              >
+                <div className="flex items-center">
+                  {tab.label}{" "}
+                  <span className="ml-1 rounded-full bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 text-xs">
+                    {isLoading ? "..." : tab.count}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Desktop view: horizontal tabs (unchanged) */}
+          <div className="hidden md:flex overflow-x-auto">
+            {tabData.map((tab) => (
+              <button
+                key={tab.id}
+                className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? "text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
+                onClick={() => handleTabChange(tab.id)}
+              >
+                {tab.label}{" "}
+                <span className="ml-1 rounded-full bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 text-xs">
+                  {isLoading ? "..." : tab.count}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
