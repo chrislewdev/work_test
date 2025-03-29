@@ -32,7 +32,8 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
   const [isAssignedToUser, setIsAssignedToUser] = useState(false); // Track if task is assigned to current user
   const router = useRouter();
 
-  // Status options with colors removed - no longer needed
+  // The back path is always the dashboard tasks page
+  const backPath = "/userdashboard/tasks";
 
   useEffect(() => {
     // Simulate API call with a slight delay
@@ -127,7 +128,7 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
           The task you're looking for doesn't exist or has been removed.
         </p>
         <Link
-          href="/userdashboard/tasks"
+          href={backPath}
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           <ChevronLeft size={16} className="mr-2" />
@@ -141,7 +142,7 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
     <div className="space-y-6">
       {/* Back to tasks link */}
       <Link
-        href="/userdashboard/tasks"
+        href={backPath}
         className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-4"
       >
         <ChevronLeft size={16} className="mr-1" />
@@ -163,12 +164,12 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
                   className={cn(
                     "inline-flex items-center px-4 py-2 rounded-md text-sm font-medium",
                     status === "to do"
-                      ? "bg-gray-100 text-gray-800"
+                      ? "bg-gray-100 text-gray-800 dark:bg-zinc-700 dark:text-zinc-200"
                       : status === "in progress"
-                      ? "bg-blue-100 text-blue-800"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
                       : status === "completed"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                      : "bg-gray-100 text-gray-800 dark:bg-zinc-700 dark:text-zinc-200"
                   )}
                 >
                   {status === "to do"
