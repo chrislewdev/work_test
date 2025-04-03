@@ -32,6 +32,7 @@ interface ProfileState {
 
   // State management
   clearProfile: () => void;
+  clearProfileState: () => void; // Add this function to the interface
   resetState: {
     profile: (options?: ResetOptions) => void;
     stats: (options?: ResetOptions) => void;
@@ -132,6 +133,14 @@ const useProfileStore = create<ProfileState>()(
         clearProfile: () => {
           set({
             profile: null,
+            profileState: initialAsyncState,
+            statsState: initialAsyncState,
+          });
+        },
+
+        // Clear profile state while preserving profile data
+        clearProfileState: () => {
+          set({
             profileState: initialAsyncState,
             statsState: initialAsyncState,
           });

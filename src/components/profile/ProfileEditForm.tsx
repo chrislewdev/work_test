@@ -41,7 +41,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   onCancel,
   onSuccess,
 }) => {
-  const { updateProfile, profileState, clearProfileState } = useProfileStore();
+  const { updateProfile, profileState, resetState } = useProfileStore();
   const { loading, error, success } = profileState;
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,7 +87,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     validationRules,
   });
 
-  // Handle form submission
+  // Setup form submission handler without the redundant onSuccess callback
   const formSubmission = useFormSubmission<ProfileEditFormValues>({
     onSubmit: async (data) => {
       const updateData = {
@@ -96,14 +96,10 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       };
       await updateProfile(updateData);
     },
-    onSuccess: () => {
-      if (onSuccess) {
-        onSuccess();
-      }
-    },
+    // Removed the onSuccess callback from here to avoid duplication
   });
 
-  // Call onSuccess when profile is updated successfully
+  // Only monitor the profile store's success state
   useEffect(() => {
     if (success && onSuccess) {
       onSuccess();
@@ -113,9 +109,9 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   // Clear profile state when component unmounts
   useEffect(() => {
     return () => {
-      clearProfileState();
+      resetState.profile(); // Use the proper reset function from the store
     };
-  }, [clearProfileState]);
+  }, [resetState]);
 
   // Handle image selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
