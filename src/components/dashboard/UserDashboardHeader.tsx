@@ -52,16 +52,19 @@ export const UserDashboardHeader: React.FC<UserDashboardHeaderProps> = ({
 
   // Handle logout
   const handleLogout = () => {
-    // Reset states before logout
-    profileResetState.all();
-    authResetState.all();
-
-    // Perform logout
-    clearProfile();
-    logout();
-
-    // Close the user menu
+    // Close the user menu first
     setUserMenuOpen(false);
+
+    // We'll use a timeout to prevent potential recursive calls
+    // This ensures state updates from closing the menu are processed
+    // before we perform logout operations
+    setTimeout(() => {
+      // Clear profile first
+      clearProfile();
+
+      // Then perform logout (which will clear auth state)
+      logout();
+    }, 0);
   };
 
   return (

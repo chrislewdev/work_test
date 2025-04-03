@@ -1,7 +1,7 @@
 // src/utils/stateResetUtils.ts
 
 import { resetState } from "@/utils/asyncState";
-import { type StoreApi } from "zustand";
+import { StoreApi } from "zustand";
 
 // Type for reset options
 export interface ResetOptions {
@@ -15,7 +15,8 @@ export type StatePath<T> = string[] | ((state: T) => any);
 export function createResetFunction<T>(
   getter: (state: T) => any,
   setter: StoreApi<T>["setState"],
-  initialValue: any
+  initialValue: any,
+  stateKey?: string
 ) {
   return (options: ResetOptions = {}) => {
     setter((state) => {
@@ -23,12 +24,19 @@ export function createResetFunction<T>(
       const currentState = getter(state);
 
       // Preserve data if specified
-      const data = options.preserve ? currentState.data : null;
+      const data =
+        options.preserve && currentState?.data ? currentState.data : null;
+
+      // Use provided stateKey or try to determine it
+      const key = stateKey || getLastKey(getter);
+
+      // If we couldn't determine the key, just return the state unchanged to avoid errors
+      if (!key) return state;
 
       // Return the state update
       return {
         ...state,
-        [getLastKey(getter)]: { ...resetState(), data },
+        [key]: { ...resetState(), data },
       };
     });
   };
@@ -45,38 +53,50 @@ export function createBatchResetFunction<T>(setters: {
 }
 
 // Helper function to get the last key from a function path
-function getLastKey<T>(getter: (state: T) => any): string {
-  // This is a simplified implementation that relies on
-  // common naming patterns where the getter function name
-  // corresponds to the state property
-  const fnString = getter.toString();
-  const match = fnString.match(/state\.(\w+)/);
+// This is a best-effort approach and may not work for all cases
+function getLastKey<T>(getter: (state: T) => any): string | null {
+  try {
+    // Convert function to string
+    const fnString = getter.toString();
 
-  if (!match) {
-    // Fallback: Try to extract from function name or error
-    const fnNameMatch = fnString.match(/return\s+state\.(\w+)/);
-    return fnNameMatch ? fnNameMatch[1] : "state";
+    // Try to find a pattern like "state.propertyName"
+    const statePropertyRegex = /state\.(\w+)/;
+    const match = fnString.match(statePropertyRegex);
+
+    if (match && match[1]) {
+      return match[1];
+    }
+
+    // Alternative approach - try to find a return statement with property access
+    const returnPropertyRegex = /return\s+\w+\.(\w+)/;
+    const returnMatch = fnString.match(returnPropertyRegex);
+
+    if (returnMatch && returnMatch[1]) {
+      return returnMatch[1];
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error parsing getter function:", error);
+    return null;
   }
-
-  return match[1];
 }
 
 // Factory function to generate reset functions for a store
 export function createStoreResetFunctions<T>(
-  store: {
-    setState: StoreApi<T>["setState"];
-    getState: StoreApi<T>["getState"];
-  },
+  store: StoreApi<T>,
   asyncStateMap: Record<string, any>
 ) {
   const resetFunctions: Record<string, (options?: ResetOptions) => void> = {};
 
   // Create a reset function for each async state property
   for (const key in asyncStateMap) {
+    // Use an explicit key reference instead of relying on function parsing
     resetFunctions[key] = createResetFunction(
       (state: T) => (state as any)[key],
       store.setState,
-      asyncStateMap[key]
+      asyncStateMap[key],
+      key // Pass the key explicitly
     );
   }
 
