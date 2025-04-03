@@ -6,20 +6,18 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui_blocks/Container";
 import BackButton from "@/components/ui_blocks/BackButton";
-import TaskDetailClientPage from "./client-page";
 import useTaskStore from "@/stores/taskStore";
 import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
-interface TaskDetailClientPageProps {
+interface TaskDetailPageProps {
   taskId: string;
 }
 
-export default function TaskDetailClientPage({
-  taskId,
-}: TaskDetailClientPageProps) {
+export default function TaskDetailClientPage({ taskId }: TaskDetailPageProps) {
   const router = useRouter();
-  const { currentTask, fetchTaskById, loading, error, resetState } =
+  const { currentTask, fetchTaskById, taskDetailState, resetState } =
     useTaskStore();
+  const { loading, error } = taskDetailState;
 
   // Reset detail state on component unmount
   useResetOnUnmount(resetState.taskDetail);

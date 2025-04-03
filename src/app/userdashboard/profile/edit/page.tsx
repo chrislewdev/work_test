@@ -13,8 +13,10 @@ import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 export default function ProfileEditPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
-  const { profile, loading, error, fetchProfile, resetState } =
-    useProfileStore();
+  const { profile, profileState, fetchProfile, resetState } = useProfileStore();
+
+  // Correctly access loading and error from profileState
+  const { loading, error } = profileState;
 
   // Reset profile state when component unmounts
   useResetOnUnmount(resetState.profile);

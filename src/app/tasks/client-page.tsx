@@ -27,14 +27,17 @@ export default function TasksClientPage({
   const {
     tasks,
     filteredTasks,
-    loading,
-    error,
     fetchTasks,
     sortBy,
     setSortOption,
     activeFilterCount,
     resetState,
+    taskListState,
   } = useTaskStore();
+
+  // Extract loading and error from taskListState
+  const { loading, error } = taskListState;
+
   const router = useRouter();
 
   // Reset task list state on component unmount
