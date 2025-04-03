@@ -9,6 +9,7 @@ import ThemeToggle from "@/components/ui_blocks/ThemeToggle";
 import useAuthStore from "@/stores/authStore";
 import useProfileStore from "@/stores/profileStore";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 // Define a consistent header height
 export const HEADER_HEIGHT = "84px";
@@ -21,10 +22,23 @@ export const UserDashboardHeader: React.FC<UserDashboardHeaderProps> = ({
   toggleSidebar,
 }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useAuthStore();
-  const { profile, fetchProfile, clearProfile } = useProfileStore();
+  const {
+    isAuthenticated,
+    user,
+    logout,
+    resetState: authResetState,
+  } = useAuthStore();
+  const {
+    profile,
+    fetchProfile,
+    clearProfile,
+    resetState: profileResetState,
+  } = useProfileStore();
   const { width } = useWindowSize();
   const isMobile = width ? width < 1024 : false; // 1024px is the lg breakpoint in Tailwind
+
+  // Reset profile state on component unmount
+  useResetOnUnmount(profileResetState.profile);
 
   // Fetch profile if authenticated but no profile loaded
   useEffect(() => {
@@ -38,8 +52,15 @@ export const UserDashboardHeader: React.FC<UserDashboardHeaderProps> = ({
 
   // Handle logout
   const handleLogout = () => {
+    // Reset states before logout
+    profileResetState.all();
+    authResetState.all();
+
+    // Perform logout
     clearProfile();
     logout();
+
+    // Close the user menu
     setUserMenuOpen(false);
   };
 
@@ -163,8 +184,8 @@ export const UserDashboardHeader: React.FC<UserDashboardHeaderProps> = ({
       {userMenuOpen && isMobile && (
         <div
           className="lg:hidden fixed inset-0 top-[84px] bg-gray-600/50 backdrop-blur-sm z-30"
-          onClick={() => setUserMenuOpen(false)}
           aria-hidden="true"
+          onClick={() => setUserMenuOpen(false)}
         />
       )}
 

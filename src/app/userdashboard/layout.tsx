@@ -13,6 +13,7 @@ import UserDashboardHeader, {
 } from "@/components/dashboard/UserDashboardHeader";
 import useAuthStore from "@/stores/authStore";
 import FormStatus from "@/components/ui_blocks/FormStatus";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 interface UserDashboardLayoutProps {
   children: React.ReactNode;
@@ -37,9 +38,12 @@ export default function UserDashboardLayout({
   const [isMobile, setIsMobile] = useState(false);
 
   // Authentication state and router
-  const { isAuthenticated, user, authState } = useAuthStore();
+  const { isAuthenticated, user, authState, resetState } = useAuthStore();
   const { loading, error } = authState;
   const router = useRouter();
+
+  // Reset auth state on component unmount
+  useResetOnUnmount(resetState.auth);
 
   // Authentication check
   useEffect(() => {

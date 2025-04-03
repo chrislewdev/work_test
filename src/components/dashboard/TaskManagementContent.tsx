@@ -1,8 +1,4 @@
 // src/components/dashboard/TaskManagementContent.tsx
-/**
- * This component displays a Kanban-style task board with To Do, In Progress, and Completed columns.
- * It directly imports task data from src/app/lib/userTaskData.json.
- */
 
 "use client";
 
@@ -16,6 +12,7 @@ import { FunnelIcon, ArrowsUpDownIcon } from "@heroicons/react/24/outline";
 import useTaskStore, { TaskSortOption } from "@/stores/taskStore";
 import FilterPanel from "@/components/tasks/FilterPanel";
 import ActiveFilters from "@/components/tasks/ActiveFilters";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 // Direct import of task data
 import taskData from "@/app/lib/userTaskData.json";
 
@@ -37,8 +34,17 @@ const TaskManagementContent: React.FC = () => {
   const searchParams = useSearchParams();
 
   // Get task store for sorting and filtering
-  const { sortBy, setSortOption, filters, activeFilterCount, clearFilters } =
-    useTaskStore();
+  const {
+    sortBy,
+    setSortOption,
+    filters,
+    activeFilterCount,
+    clearFilters,
+    resetState,
+  } = useTaskStore();
+
+  // Reset task list state on component unmount
+  useResetOnUnmount(resetState.taskList);
 
   // Load task data with a simulated loading delay for better UX
   useEffect(() => {

@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Task } from "@/types/task";
 import { cn } from "@/app/lib/utils";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
+import useTaskStore from "@/stores/taskStore";
 
 import taskData from "@/app/lib/userTaskData.json";
 
@@ -28,6 +30,10 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
   const [status, setStatus] = useState<string>("");
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [isAssignedToUser, setIsAssignedToUser] = useState(false); // Track if task is assigned to current user
+  const { resetState } = useTaskStore();
+
+  // Reset task detail state on component unmount
+  useResetOnUnmount(resetState.taskDetail);
 
   // The back path is always the dashboard tasks page
   const backPath = "/userdashboard/tasks";

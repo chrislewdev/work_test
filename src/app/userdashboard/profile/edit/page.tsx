@@ -8,12 +8,16 @@ import BackButton from "@/components/ui_blocks/BackButton";
 import ProfileEditForm from "@/components/profile/ProfileEditForm";
 import useAuthStore from "@/stores/authStore";
 import useProfileStore from "@/stores/profileStore";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 export default function ProfileEditPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
   const { profile, loading, error, fetchProfile, resetState } =
     useProfileStore();
+
+  // Reset profile state when component unmounts
+  useResetOnUnmount(resetState.profile);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -24,13 +28,6 @@ export default function ProfileEditPage() {
       fetchProfile(user.id);
     }
   }, [isAuthenticated, user, profile, router, fetchProfile]);
-
-  // Reset profile state when component unmounts
-  useEffect(() => {
-    return () => {
-      resetState.profile(); // Use the correct reset method from resetState
-    };
-  }, [resetState]);
 
   // Handle cancel button click
   const handleCancel = () => {

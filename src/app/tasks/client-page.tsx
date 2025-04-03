@@ -15,6 +15,7 @@ import {
 } from "@heroicons/react/24/outline";
 import FilterPanel from "@/components/tasks/FilterPanel";
 import ActiveFilters from "@/components/tasks/ActiveFilters";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 interface TasksClientPageProps {
   initialPage?: number;
@@ -32,8 +33,12 @@ export default function TasksClientPage({
     sortBy,
     setSortOption,
     activeFilterCount,
+    resetState,
   } = useTaskStore();
   const router = useRouter();
+
+  // Reset task list state on component unmount
+  useResetOnUnmount(resetState.taskList);
 
   // State for current page
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -59,11 +64,6 @@ export default function TasksClientPage({
   useEffect(() => {
     // Fetch tasks - they will be sorted by the default sort option in the store
     fetchTasks();
-
-    // Clean-up function
-    return () => {
-      // Reset loading state on unmount
-    };
   }, [fetchTasks]);
 
   // Track filter changes and reset pagination

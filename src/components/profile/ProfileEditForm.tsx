@@ -12,6 +12,7 @@ import FormSection from "@/components/ui_blocks/FormSection";
 import FormStatus from "@/components/ui_blocks/FormStatus";
 import { useForm } from "@/app/hooks/useForm";
 import { useFormSubmission } from "@/app/hooks/useFormSubmission";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 import { User } from "@/stores/authStore";
 import useProfileStore from "@/stores/profileStore";
 import { cn } from "@/app/lib/utils";
@@ -45,6 +46,9 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   const { loading, error, success } = profileState;
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset profile state on component unmount
+  useResetOnUnmount(resetState.profile);
 
   // Form validation rules
   const validationRules = {
@@ -87,7 +91,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     validationRules,
   });
 
-  // Setup form submission handler without the redundant onSuccess callback
+  // Setup form submission handler
   const formSubmission = useFormSubmission<ProfileEditFormValues>({
     onSubmit: async (data) => {
       const updateData = {
@@ -96,22 +100,20 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       };
       await updateProfile(updateData);
     },
-    // Removed the onSuccess callback from here to avoid duplication
   });
 
   // Only monitor the profile store's success state
   useEffect(() => {
     if (success && onSuccess) {
-      onSuccess();
-    }
-  }, [success, onSuccess]);
+      // Auto-reset success state after a delay
+      const timer = setTimeout(() => {
+        resetState.profile({ preserve: true });
+        onSuccess();
+      }, 1500);
 
-  // Clear profile state when component unmounts
-  useEffect(() => {
-    return () => {
-      resetState.profile(); // Use the proper reset function from the store
-    };
-  }, [resetState]);
+      return () => clearTimeout(timer);
+    }
+  }, [success, onSuccess, resetState]);
 
   // Handle image selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +130,12 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Only reset if we had a previous error
+    if (error) {
+      resetState.profile();
+    }
+
     await form.handleSubmit(e);
 
     // If form is valid, submit it
@@ -142,7 +150,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       return {
         type: "error" as const,
         message: error,
-        title: "Error", // Add a default title for error states
+        title: "Error",
       };
     }
 
@@ -150,7 +158,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       return {
         type: "success" as const,
         message: "Profile updated successfully.",
-        title: "Success", // Add a default title for success states
+        title: "Success",
       };
     }
 
