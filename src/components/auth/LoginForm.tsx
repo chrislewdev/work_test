@@ -10,7 +10,6 @@ import FormButton from "@/components/ui_blocks/FormButton";
 import FormActions from "@/components/ui_blocks/FormActions";
 import AuthFormBase from "@/components/auth/AuthFormBase";
 import useAuthStore from "@/stores/authStore";
-import useProfileStore from "@/stores/profileStore";
 import { useForm } from "@/app/hooks/useForm";
 import { useFormSubmission } from "@/app/hooks/useFormSubmission";
 
@@ -21,8 +20,8 @@ interface LoginFormValues {
 
 const LoginForm: React.FC = () => {
   const router = useRouter();
-  const { login, isAuthenticated, loading, error, clearError } = useAuthStore();
-  const { fetchProfile } = useProfileStore();
+  const { login, isAuthenticated, authState, clearAuthState } = useAuthStore();
+  const { loading, error, success } = authState;
 
   // Form validation rules
   const validationRules = {
@@ -68,9 +67,9 @@ const LoginForm: React.FC = () => {
   // Clear errors when component unmounts
   useEffect(() => {
     return () => {
-      clearError();
+      clearAuthState();
     };
-  }, [clearError]);
+  }, [clearAuthState]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {

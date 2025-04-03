@@ -3,6 +3,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { authService } from "@/services/authService";
+import {
+  AsyncState,
+  initialAsyncState,
+  loadingState,
+  successState,
+  errorState,
+} from "@/utils/asyncState";
 
 // Define user stats type
 export interface UserStats {
@@ -35,97 +42,160 @@ export interface User {
 
 // Define auth store state
 interface AuthState {
+  // Authentication state
   isAuthenticated: boolean;
   user: User | null;
-  loading: boolean;
-  error: string | null;
+
+  // Async states
+  authState: AsyncState<User>;
+  resetPasswordState: AsyncState<void>;
+  forgotPasswordState: AsyncState<void>;
 
   // Authentication actions
-  login: (email: string, password: string) => Promise<void>;
-  register: (userData: Partial<User>, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User | null>;
+  register: (userData: Partial<User>, password: string) => Promise<User | null>;
   logout: () => void;
-  resetPassword: (oldPassword: string, newPassword: string) => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
-  clearError: () => void;
+  resetPassword: (
+    oldPassword: string,
+    newPassword: string
+  ) => Promise<void | null>;
+  forgotPassword: (email: string) => Promise<void | null>;
+
+  // State management
+  clearAuthState: () => void;
+  clearResetPasswordState: () => void;
+  clearForgotPasswordState: () => void;
 }
 
 // Create auth store with persistence
 const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
+      // Authentication state
       isAuthenticated: false,
       user: null,
-      loading: false,
-      error: null,
 
+      // Async states
+      authState: initialAsyncState,
+      resetPasswordState: initialAsyncState,
+      forgotPasswordState: initialAsyncState,
+
+      // Authentication actions
       login: async (email: string, password: string) => {
         try {
-          set({ loading: true, error: null });
+          set({ authState: loadingState(get().authState) });
 
-          // Use auth service to login
           const user = await authService.login(email, password);
 
-          set({ isAuthenticated: true, user, loading: false });
-        } catch (error: any) {
-          set({ loading: false, error: error.message });
+          set({
+            authState: successState(user),
+            isAuthenticated: true,
+            user,
+          });
+
+          return user;
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          set({ authState: errorState(errorMessage, get().authState) });
+          return null;
         }
       },
 
       register: async (userData: Partial<User>, password: string) => {
         try {
-          set({ loading: true, error: null });
+          set({ authState: loadingState(get().authState) });
 
-          // Use auth service to register
-          const newUser = await authService.register(userData, password);
+          const user = await authService.register(userData, password);
 
-          set({ isAuthenticated: true, user: newUser, loading: false });
-        } catch (error: any) {
-          set({ loading: false, error: error.message });
+          set({
+            authState: successState(user),
+            isAuthenticated: true,
+            user,
+          });
+
+          return user;
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          set({ authState: errorState(errorMessage, get().authState) });
+          return null;
         }
       },
 
       logout: () => {
-        set({ isAuthenticated: false, user: null });
+        set({
+          isAuthenticated: false,
+          user: null,
+          authState: initialAsyncState,
+          resetPasswordState: initialAsyncState,
+          forgotPasswordState: initialAsyncState,
+        });
       },
 
       resetPassword: async (oldPassword: string, newPassword: string) => {
+        const currentUser = get().user;
+        if (!currentUser) {
+          const errorMsg = "Not authenticated";
+          set({
+            resetPasswordState: errorState(errorMsg, get().resetPasswordState),
+          });
+          return null;
+        }
+
         try {
-          set({ loading: true, error: null });
+          set({ resetPasswordState: loadingState(get().resetPasswordState) });
 
-          const currentUser = get().user;
-          if (!currentUser) {
-            throw new Error("Not authenticated");
-          }
-
-          // Use auth service to reset password
           await authService.resetPassword(
             currentUser.email,
             oldPassword,
             newPassword
           );
 
-          set({ loading: false });
-        } catch (error: any) {
-          set({ loading: false, error: error.message });
+          set({ resetPasswordState: successState(undefined) });
+
+          return undefined;
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          set({
+            resetPasswordState: errorState(
+              errorMessage,
+              get().resetPasswordState
+            ),
+          });
+          return null;
         }
       },
 
       forgotPassword: async (email: string) => {
         try {
-          set({ loading: true, error: null });
+          set({ forgotPasswordState: loadingState(get().forgotPasswordState) });
 
-          // Use auth service to request password reset
           await authService.forgotPassword(email);
 
-          set({ loading: false });
-        } catch (error: any) {
-          set({ loading: false, error: error.message });
+          set({ forgotPasswordState: successState(undefined) });
+
+          return undefined;
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          set({
+            forgotPasswordState: errorState(
+              errorMessage,
+              get().forgotPasswordState
+            ),
+          });
+          return null;
         }
       },
 
-      clearError: () => {
-        set({ error: null });
-      },
+      // State management
+      clearAuthState: () => set({ authState: initialAsyncState }),
+      clearResetPasswordState: () =>
+        set({ resetPasswordState: initialAsyncState }),
+      clearForgotPasswordState: () =>
+        set({ forgotPasswordState: initialAsyncState }),
     }),
     {
       name: "auth-storage", // name of the item in localStorage

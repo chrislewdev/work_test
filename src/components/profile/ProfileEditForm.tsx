@@ -41,7 +41,8 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   onCancel,
   onSuccess,
 }) => {
-  const { updateProfile, loading, error, clearError } = useProfileStore();
+  const { updateProfile, profileState, clearProfileState } = useProfileStore();
+  const { loading, error, success } = profileState;
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,12 +103,19 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     },
   });
 
-  // Clear errors when component unmounts
+  // Call onSuccess when profile is updated successfully
+  useEffect(() => {
+    if (success && onSuccess) {
+      onSuccess();
+    }
+  }, [success, onSuccess]);
+
+  // Clear profile state when component unmounts
   useEffect(() => {
     return () => {
-      clearError();
+      clearProfileState();
     };
-  }, [clearError]);
+  }, [clearProfileState]);
 
   // Handle image selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +150,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       };
     }
 
-    if (formSubmission.isSubmitted) {
+    if (success) {
       return {
         type: "success" as const,
         message: "Profile updated successfully.",
@@ -154,6 +162,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   };
 
   const formStatus = getFormStatus();
+  const isFormDisabled = loading || formSubmission.isSubmitting || success;
 
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-6">
@@ -190,6 +199,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+            disabled={isFormDisabled}
           >
             Change Profile Picture
           </button>
@@ -199,6 +209,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
             onChange={handleImageChange}
             accept="image/*"
             className="hidden"
+            disabled={isFormDisabled}
           />
         </div>
 
@@ -217,7 +228,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               error={form.errors.firstName}
               touched={form.touched.firstName}
               required
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
             />
 
             <FormField
@@ -232,7 +243,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               error={form.errors.lastName}
               touched={form.touched.lastName}
               required
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
             />
 
             <FormField
@@ -261,7 +272,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               onBlur={() => form.handleBlur("phone")}
               error={form.errors.phone}
               touched={form.touched.phone}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
             />
 
             <FormField
@@ -274,7 +285,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               onBlur={() => form.handleBlur("title")}
               error={form.errors.title}
               touched={form.touched.title}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
               className="md:col-span-2"
             />
 
@@ -287,7 +298,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               onBlur={() => form.handleBlur("bio")}
               error={form.errors.bio}
               touched={form.touched.bio}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
               rows={4}
               className="md:col-span-2"
             />
@@ -307,7 +318,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               onBlur={() => form.handleBlur("location")}
               error={form.errors.location}
               touched={form.touched.location}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
               className="md:col-span-2"
             />
 
@@ -321,7 +332,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               onBlur={() => form.handleBlur("country")}
               error={form.errors.country}
               touched={form.touched.country}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
             />
 
             <FormField
@@ -334,7 +345,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               onBlur={() => form.handleBlur("cityState")}
               error={form.errors.cityState}
               touched={form.touched.cityState}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
             />
 
             <FormField
@@ -347,7 +358,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               onBlur={() => form.handleBlur("postalCode")}
               error={form.errors.postalCode}
               touched={form.touched.postalCode}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
             />
 
             <FormField
@@ -360,7 +371,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               onBlur={() => form.handleBlur("taxId")}
               error={form.errors.taxId}
               touched={form.touched.taxId}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
             />
           </div>
         </FormSection>
@@ -372,7 +383,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               type="button"
               variant="secondary"
               onClick={onCancel}
-              disabled={loading || formSubmission.isSubmitting}
+              disabled={isFormDisabled}
             >
               Cancel
             </FormButton>
@@ -381,6 +392,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
             type="submit"
             isLoading={loading || formSubmission.isSubmitting}
             loadingText="Saving Changes..."
+            disabled={success}
           >
             Save Changes
           </FormButton>

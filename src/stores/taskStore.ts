@@ -2,6 +2,13 @@
 
 import { create } from "zustand";
 import { taskService } from "@/services/taskService";
+import {
+  AsyncState,
+  initialAsyncState,
+  loadingState,
+  successState,
+  errorState,
+} from "@/utils/asyncState";
 
 // Owner type
 export interface TaskOwner {
@@ -33,7 +40,7 @@ export type TaskSortOption =
   | "date-created-asc"
   | "date-created-desc";
 
-// New filter options
+// Filter options
 export interface TaskFilters {
   priority: ("high" | "medium" | "low")[];
   topics: string[];
@@ -46,22 +53,27 @@ export interface TaskFilters {
 
 // Define task store state
 interface TaskState {
+  // Task data
   tasks: Task[];
   filteredTasks: Task[];
   currentTask: Task | null;
-  loading: boolean;
-  error: string | null;
+
+  // UI state
   sortBy: TaskSortOption;
   filters: TaskFilters;
   activeFilterCount: number;
 
+  // Async states
+  taskListState: AsyncState<Task[]>;
+  taskDetailState: AsyncState<Task>;
+  taskMutationState: AsyncState<Task | void>;
+
   // Task actions
-  fetchTasks: () => Promise<void>;
-  fetchTaskById: (taskId: string) => Promise<void>;
-  createTask: (taskData: Omit<Task, "id">) => Promise<void>;
-  updateTask: (taskId: string, taskData: Partial<Task>) => Promise<void>;
-  deleteTask: (taskId: string) => Promise<void>;
-  setSortOption: (option: TaskSortOption) => void;
+  fetchTasks: () => Promise<Task[] | null>;
+  fetchTaskById: (taskId: string) => Promise<Task | null>;
+  createTask: (taskData: Omit<Task, "id">) => Promise<Task | null>;
+  updateTask: (taskId: string, taskData: Partial<Task>) => Promise<Task | null>;
+  deleteTask: (taskId: string) => Promise<void | null>;
 
   // Filter actions
   setFilter: <K extends keyof TaskFilters>(
@@ -72,7 +84,13 @@ interface TaskState {
   clearFilter: <K extends keyof TaskFilters>(filterType: K) => void;
   applyFilters: () => void;
 
-  clearError: () => void;
+  // Sort actions
+  setSortOption: (option: TaskSortOption) => void;
+
+  // State management
+  clearTaskListState: () => void;
+  clearTaskDetailState: () => void;
+  clearTaskMutationState: () => void;
 }
 
 // Default empty filters
@@ -88,20 +106,26 @@ const defaultFilters: TaskFilters = {
 
 // Create task store
 const useTaskStore = create<TaskState>((set, get) => ({
+  // Task data
   tasks: [],
   filteredTasks: [],
   currentTask: null,
-  loading: true,
-  error: null,
+
+  // UI state
   sortBy: "deadline-asc", // Default sort by deadline ascending (earliest first)
   filters: defaultFilters,
   activeFilterCount: 0,
 
+  // Async states
+  taskListState: initialAsyncState,
+  taskDetailState: initialAsyncState,
+  taskMutationState: initialAsyncState,
+
+  // Task actions
   fetchTasks: async () => {
     try {
-      set({ loading: true, error: null });
+      set({ taskListState: loadingState(get().taskListState) });
 
-      // Always fetch tasks from service
       const tasks = await taskService.fetchTasks();
 
       // Sort the tasks based on current sort option
@@ -111,33 +135,44 @@ const useTaskStore = create<TaskState>((set, get) => ({
       const filteredTasks = applyFiltersToTasks(sortedTasks, get().filters);
 
       set({
+        taskListState: successState(tasks),
         tasks: sortedTasks,
         filteredTasks,
-        loading: false,
       });
-    } catch (error: any) {
-      set({ loading: false, error: error.message });
+
+      return tasks;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      set({ taskListState: errorState(errorMessage, get().taskListState) });
+      return null;
     }
   },
 
   fetchTaskById: async (taskId: string) => {
     try {
-      set({ loading: true, error: null });
+      set({ taskDetailState: loadingState(get().taskDetailState) });
 
-      // Fetch task from service
       const task = await taskService.fetchTaskById(taskId);
 
-      set({ currentTask: task, loading: false });
-    } catch (error: any) {
-      set({ loading: false, error: error.message });
+      set({
+        taskDetailState: successState(task),
+        currentTask: task,
+      });
+
+      return task;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      set({ taskDetailState: errorState(errorMessage, get().taskDetailState) });
+      return null;
     }
   },
 
   createTask: async (taskData: Omit<Task, "id">) => {
     try {
-      set({ loading: true, error: null });
+      set({ taskMutationState: loadingState(get().taskMutationState) });
 
-      // Use task service to create a task
       const newTask = await taskService.createTask(taskData);
 
       // Get the current tasks and sort option
@@ -151,20 +186,26 @@ const useTaskStore = create<TaskState>((set, get) => ({
       const filteredTasks = applyFiltersToTasks(sortedTasks, get().filters);
 
       set({
+        taskMutationState: successState(newTask),
         tasks: sortedTasks,
         filteredTasks,
-        loading: false,
       });
-    } catch (error: any) {
-      set({ loading: false, error: error.message });
+
+      return newTask;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      set({
+        taskMutationState: errorState(errorMessage, get().taskMutationState),
+      });
+      return null;
     }
   },
 
   updateTask: async (taskId: string, taskData: Partial<Task>) => {
     try {
-      set({ loading: true, error: null });
+      set({ taskMutationState: loadingState(get().taskMutationState) });
 
-      // Use task service to update the task
       const updatedTask = await taskService.updateTask(taskId, taskData);
 
       // Update tasks list with the updated task
@@ -183,21 +224,27 @@ const useTaskStore = create<TaskState>((set, get) => ({
         get().currentTask?.id === taskId ? updatedTask : get().currentTask;
 
       set({
+        taskMutationState: successState(updatedTask),
         tasks: sortedTasks,
         filteredTasks,
         currentTask,
-        loading: false,
       });
-    } catch (error: any) {
-      set({ loading: false, error: error.message });
+
+      return updatedTask;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      set({
+        taskMutationState: errorState(errorMessage, get().taskMutationState),
+      });
+      return null;
     }
   },
 
   deleteTask: async (taskId: string) => {
     try {
-      set({ loading: true, error: null });
+      set({ taskMutationState: loadingState(get().taskMutationState) });
 
-      // Use task service to delete the task
       await taskService.deleteTask(taskId);
 
       // Remove the task from the tasks list
@@ -211,32 +258,21 @@ const useTaskStore = create<TaskState>((set, get) => ({
         get().currentTask?.id === taskId ? null : get().currentTask;
 
       set({
+        taskMutationState: successState(undefined),
         tasks,
         filteredTasks,
         currentTask,
-        loading: false,
       });
-    } catch (error: any) {
-      set({ loading: false, error: error.message });
+
+      return undefined;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      set({
+        taskMutationState: errorState(errorMessage, get().taskMutationState),
+      });
+      return null;
     }
-  },
-
-  setSortOption: (option: TaskSortOption) => {
-    // Get current tasks
-    const tasks = [...get().tasks];
-
-    // Sort tasks based on new option
-    const sortedTasks = sortTasks(tasks, option);
-
-    // Apply existing filters to the sorted tasks
-    const filteredTasks = applyFiltersToTasks(sortedTasks, get().filters);
-
-    // Update state with new sort option and sorted tasks
-    set({
-      sortBy: option,
-      tasks: sortedTasks,
-      filteredTasks,
-    });
   },
 
   // Set a specific filter
@@ -289,9 +325,28 @@ const useTaskStore = create<TaskState>((set, get) => ({
     });
   },
 
-  clearError: () => {
-    set({ error: null });
+  setSortOption: (option: TaskSortOption) => {
+    // Get current tasks
+    const tasks = [...get().tasks];
+
+    // Sort tasks based on new option
+    const sortedTasks = sortTasks(tasks, option);
+
+    // Apply existing filters to the sorted tasks
+    const filteredTasks = applyFiltersToTasks(sortedTasks, get().filters);
+
+    // Update state with new sort option and sorted tasks
+    set({
+      sortBy: option,
+      tasks: sortedTasks,
+      filteredTasks,
+    });
   },
+
+  // State management
+  clearTaskListState: () => set({ taskListState: initialAsyncState }),
+  clearTaskDetailState: () => set({ taskDetailState: initialAsyncState }),
+  clearTaskMutationState: () => set({ taskMutationState: initialAsyncState }),
 }));
 
 // Helper function to sort tasks based on sort option

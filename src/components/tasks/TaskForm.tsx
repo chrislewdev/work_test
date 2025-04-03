@@ -42,7 +42,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
   redirectPath,
 }) => {
   const router = useRouter();
-  const { createTask, updateTask, loading, error, clearError } = useTaskStore();
+  const { createTask, updateTask, taskMutationState, clearTaskMutationState } =
+    useTaskStore();
+  const { loading, error, success, data } = taskMutationState;
 
   // Topic and subject options
   const topicOptions = [
@@ -146,42 +148,36 @@ const TaskForm: React.FC<TaskFormProps> = ({
           };
 
           // Use proper type casting with the correct status value
-          const result = await createTask({
+          await createTask({
             ...taskData,
             owner: currentUser,
             status: "to do",
           } as unknown as Omit<Task, "id">);
-
-          // Store the result for later use
-          if (onSuccess && result) {
-            onSuccess(result);
-          }
         } else if (mode === "edit" && taskId) {
-          const result = await updateTask(taskId, taskData);
-
-          // Handle success callback here directly
-          if (onSuccess && result) {
-            onSuccess(result);
-          }
+          await updateTask(taskId, taskData);
         }
       } catch (error) {
         console.error("Error submitting task:", error);
         throw error; // Re-throw to let the form submission handle it
       }
     },
-    onSuccess: () => {
-      // Empty success handler as we've already handled the task result above
-    },
     redirectPath,
     redirectDelay: 1500,
   });
 
-  // Clear errors when component unmounts
+  // Call success callback when task is created/updated successfully
+  useEffect(() => {
+    if (success && data && onSuccess) {
+      onSuccess(data as Task);
+    }
+  }, [success, data, onSuccess]);
+
+  // Clear task mutation state when component unmounts
   useEffect(() => {
     return () => {
-      clearError();
+      clearTaskMutationState();
     };
-  }, [clearError]); // Add clearError to dependency array
+  }, [clearTaskMutationState]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -203,7 +199,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       };
     }
 
-    if (formSubmission.isSubmitted) {
+    if (success) {
       return {
         type: "success" as const,
         message:
@@ -217,8 +213,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   const formStatus = getFormStatus();
-  const isFormDisabled =
-    loading || formSubmission.isSubmitting || formSubmission.isSubmitted;
+  const isFormDisabled = loading || formSubmission.isSubmitting || success;
 
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-6">
@@ -350,7 +345,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             loadingText={
               mode === "create" ? "Creating Task..." : "Updating Task..."
             }
-            disabled={formSubmission.isSubmitted}
+            disabled={success}
           >
             {mode === "create" ? "Create Task" : "Update Task"}
           </FormButton>

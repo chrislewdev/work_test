@@ -12,6 +12,7 @@ import UserDashboardHeader, {
   HEADER_HEIGHT,
 } from "@/components/dashboard/UserDashboardHeader";
 import useAuthStore from "@/stores/authStore";
+import FormStatus from "@/components/ui_blocks/FormStatus";
 
 interface UserDashboardLayoutProps {
   children: React.ReactNode;
@@ -36,14 +37,21 @@ export default function UserDashboardLayout({
   const [isMobile, setIsMobile] = useState(false);
 
   // Authentication state and router
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, authState } = useAuthStore();
+  const { loading, error } = authState;
   const router = useRouter();
 
   // Authentication check
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-    }
+    // Allow some time for the auth state to be hydrated from localStorage
+    // In a real app, we might add a loading state while this happens
+    const timer = setTimeout(() => {
+      if (!isAuthenticated) {
+        router.push("/login");
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [isAuthenticated, router]);
 
   // Handle screen size detection and set sidebar state
@@ -97,9 +105,59 @@ export default function UserDashboardLayout({
     }
   };
 
+  // If still loading auth state, show loading indicator
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-zinc-900">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // If auth error, show error message
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-zinc-900">
+        <div className="max-w-md w-full p-6">
+          <FormStatus
+            type="error"
+            title="Authentication Error"
+            message={error}
+          />
+          <div className="mt-4 text-center">
+            <Link
+              href="/login"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Return to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // If not authenticated, don't render the dashboard layout
   if (!isAuthenticated) {
-    return null; // Return null to avoid flickering during redirect
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-zinc-900">
+        <div className="max-w-md w-full p-6">
+          <FormStatus
+            type="info"
+            title="Authentication Required"
+            message="Please log in to access this area."
+          />
+          <div className="mt-4 text-center">
+            <Link
+              href="/login"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Go to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -113,6 +171,7 @@ export default function UserDashboardLayout({
           <div
             className="fixed inset-0 bg-gray-600/50 backdrop-blur-sm z-20"
             aria-hidden="true"
+            onClick={() => setSidebarOpen(false)}
           />
         )}
 
