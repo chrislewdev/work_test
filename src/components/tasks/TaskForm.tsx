@@ -14,6 +14,7 @@ import FormStatus from "@/components/ui_blocks/FormStatus";
 import { useForm } from "@/app/hooks/useForm";
 import { useFormSubmission } from "@/app/hooks/useFormSubmission";
 import useTaskStore, { Task } from "@/stores/taskStore";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 interface TaskFormValues {
   title: string;
@@ -42,9 +43,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
   redirectPath,
 }) => {
   const router = useRouter();
-  const { createTask, updateTask, taskMutationState, clearTaskMutationState } =
+  const { createTask, updateTask, taskMutationState, resetState } =
     useTaskStore();
   const { loading, error, success, data } = taskMutationState;
+
+  // Reset task mutation state on component unmount
+  useResetOnUnmount(resetState.taskMutation);
 
   // Topic and subject options
   const topicOptions = [
@@ -169,19 +173,25 @@ const TaskForm: React.FC<TaskFormProps> = ({
   useEffect(() => {
     if (success && data && onSuccess) {
       onSuccess(data as Task);
-    }
-  }, [success, data, onSuccess]);
 
-  // Clear task mutation state when component unmounts
-  useEffect(() => {
-    return () => {
-      clearTaskMutationState();
-    };
-  }, [clearTaskMutationState]);
+      // Auto-reset success state after a delay
+      const timer = setTimeout(() => {
+        resetState.taskMutation({ preserve: true });
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [success, data, onSuccess, resetState]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Only reset if we had a previous error
+    if (taskMutationState.error) {
+      resetState.taskMutation();
+    }
+
     await form.handleSubmit(e);
 
     // If form is valid, submit it

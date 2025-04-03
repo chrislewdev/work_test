@@ -1,7 +1,12 @@
 // src/hooks/useAsyncOperation.ts
 
 import { useState, useCallback, useEffect } from "react";
-import { AsyncState, initialAsyncState } from "@/utils/asyncState";
+import {
+  AsyncState,
+  initialAsyncState,
+  resetState,
+  resetStatusState,
+} from "@/utils/asyncState";
 
 // Options for useAsyncOperation hook
 interface UseAsyncOperationOptions<T, P extends any[]> {
@@ -11,6 +16,7 @@ interface UseAsyncOperationOptions<T, P extends any[]> {
   initialData?: T | null;
   autoReset?: boolean;
   resetTime?: number; // Time in ms to auto-reset success/error states
+  resetMode?: "status" | "full"; // Whether to reset only status flags or full state
 }
 
 // Manage asynchronous operations with loading, error, and success states
@@ -21,6 +27,7 @@ export function useAsyncOperation<T, P extends any[]>({
   initialData = null,
   autoReset = false,
   resetTime = 3000, // Default 3 seconds
+  resetMode = "status", // Default to only resetting status flags
 }: UseAsyncOperationOptions<T, P>) {
   // State to track the async operation
   const [state, setState] = useState<AsyncState<T>>({
@@ -28,23 +35,27 @@ export function useAsyncOperation<T, P extends any[]>({
     data: initialData,
   });
 
-  // Reset state
-  const reset = useCallback(() => {
-    setState({
-      ...initialAsyncState,
-      data: initialData,
-    });
-  }, [initialData]);
+  // Reset state with different modes
+  const reset = useCallback(
+    (options: { preserveData?: boolean } = {}) => {
+      if (resetMode === "status" || options.preserveData) {
+        setState((current) => resetStatusState(current));
+      } else {
+        setState({
+          ...resetState(),
+          data: initialData,
+        });
+      }
+    },
+    [initialData, resetMode]
+  );
 
   // Auto-reset success/error after specified time
   useEffect(() => {
     if (autoReset && (state.success || state.error) && !state.loading) {
       const timer = setTimeout(() => {
-        setState((prevState) => ({
-          ...prevState,
-          success: false,
-          error: null,
-        }));
+        // Only reset status flags, preserve data for auto-reset
+        setState((current) => resetStatusState(current));
       }, resetTime);
 
       return () => clearTimeout(timer);

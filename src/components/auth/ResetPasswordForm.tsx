@@ -11,6 +11,7 @@ import AuthFormBase from "@/components/auth/AuthFormBase";
 import useAuthStore from "@/stores/authStore";
 import { useForm } from "@/app/hooks/useForm";
 import { useFormSubmission } from "@/app/hooks/useFormSubmission";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 interface ResetPasswordFormProps {
   token: string;
@@ -23,7 +24,11 @@ interface ResetPasswordFormValues {
 
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
   const router = useRouter();
-  const { resetPassword, loading, error, clearError } = useAuthStore();
+  const { resetPassword, resetPasswordState, resetState } = useAuthStore();
+  const { loading, error } = resetPasswordState;
+
+  // Reset password state on component unmount
+  useResetOnUnmount(resetState.resetPassword);
 
   // Form validation rules
   const validationRules = {
@@ -61,21 +66,25 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     redirectDelay: 3000,
   });
 
-  // Clear errors when component unmounts
-  useEffect(() => {
-    return () => {
-      clearError();
-    };
-  }, [clearError]);
-
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Only reset if we had a previous error
+    if (resetPasswordState.error) {
+      resetState.resetPassword();
+    }
+
     await form.handleSubmit(e);
 
     // If form is valid, submit it
     if (Object.keys(form.errors).length === 0) {
       await formSubmission.submit(form.values);
+
+      // Auto-reset success state after a delay if successful
+      if (resetPasswordState.success) {
+        setTimeout(() => resetState.resetPassword({ preserve: true }), 3000);
+      }
     }
   };
 

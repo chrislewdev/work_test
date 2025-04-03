@@ -10,6 +10,10 @@ import {
   successState,
   errorState,
 } from "@/utils/asyncState";
+import {
+  createStoreResetFunctions,
+  ResetOptions,
+} from "@/utils/stateResetUtils";
 
 // Define user stats type
 export interface UserStats {
@@ -62,141 +66,172 @@ interface AuthState {
   forgotPassword: (email: string) => Promise<void | null>;
 
   // State management
-  clearAuthState: () => void;
-  clearResetPasswordState: () => void;
-  clearForgotPasswordState: () => void;
+  resetState: {
+    auth: (options?: ResetOptions) => void;
+    resetPassword: (options?: ResetOptions) => void;
+    forgotPassword: (options?: ResetOptions) => void;
+    all: (options?: ResetOptions) => void;
+  };
 }
+
+// AsyncState mapping for reset functions
+const asyncStateMap = {
+  authState: initialAsyncState,
+  resetPasswordState: initialAsyncState,
+  forgotPasswordState: initialAsyncState,
+};
 
 // Create auth store with persistence
 const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
-      // Authentication state
-      isAuthenticated: false,
-      user: null,
+    (set, get) => {
+      // Initialize the store
+      const store = {
+        // Authentication state
+        isAuthenticated: false,
+        user: null,
 
-      // Async states
-      authState: initialAsyncState,
-      resetPasswordState: initialAsyncState,
-      forgotPasswordState: initialAsyncState,
+        // Async states
+        authState: initialAsyncState,
+        resetPasswordState: initialAsyncState,
+        forgotPasswordState: initialAsyncState,
 
-      // Authentication actions
-      login: async (email: string, password: string) => {
-        try {
-          set({ authState: loadingState(get().authState) });
+        // Authentication actions
+        login: async (email: string, password: string) => {
+          try {
+            set({ authState: loadingState(get().authState) });
 
-          const user = await authService.login(email, password);
+            const user = await authService.login(email, password);
 
+            set({
+              authState: successState(user),
+              isAuthenticated: true,
+              user,
+            });
+
+            return user;
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            set({ authState: errorState(errorMessage, get().authState) });
+            return null;
+          }
+        },
+
+        register: async (userData: Partial<User>, password: string) => {
+          try {
+            set({ authState: loadingState(get().authState) });
+
+            const user = await authService.register(userData, password);
+
+            set({
+              authState: successState(user),
+              isAuthenticated: true,
+              user,
+            });
+
+            return user;
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            set({ authState: errorState(errorMessage, get().authState) });
+            return null;
+          }
+        },
+
+        logout: () => {
           set({
-            authState: successState(user),
-            isAuthenticated: true,
-            user,
+            isAuthenticated: false,
+            user: null,
+            authState: initialAsyncState,
+            resetPasswordState: initialAsyncState,
+            forgotPasswordState: initialAsyncState,
           });
+        },
 
-          return user;
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          set({ authState: errorState(errorMessage, get().authState) });
-          return null;
-        }
-      },
+        resetPassword: async (oldPassword: string, newPassword: string) => {
+          const currentUser = get().user;
+          if (!currentUser) {
+            const errorMsg = "Not authenticated";
+            set({
+              resetPasswordState: errorState(
+                errorMsg,
+                get().resetPasswordState
+              ),
+            });
+            return null;
+          }
 
-      register: async (userData: Partial<User>, password: string) => {
-        try {
-          set({ authState: loadingState(get().authState) });
+          try {
+            set({ resetPasswordState: loadingState(get().resetPasswordState) });
 
-          const user = await authService.register(userData, password);
+            await authService.resetPassword(
+              currentUser.email,
+              oldPassword,
+              newPassword
+            );
 
-          set({
-            authState: successState(user),
-            isAuthenticated: true,
-            user,
-          });
+            set({ resetPasswordState: successState(undefined) });
 
-          return user;
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          set({ authState: errorState(errorMessage, get().authState) });
-          return null;
-        }
-      },
+            return undefined;
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            set({
+              resetPasswordState: errorState(
+                errorMessage,
+                get().resetPasswordState
+              ),
+            });
+            return null;
+          }
+        },
 
-      logout: () => {
-        set({
-          isAuthenticated: false,
-          user: null,
-          authState: initialAsyncState,
-          resetPasswordState: initialAsyncState,
-          forgotPasswordState: initialAsyncState,
-        });
-      },
+        forgotPassword: async (email: string) => {
+          try {
+            set({
+              forgotPasswordState: loadingState(get().forgotPasswordState),
+            });
 
-      resetPassword: async (oldPassword: string, newPassword: string) => {
-        const currentUser = get().user;
-        if (!currentUser) {
-          const errorMsg = "Not authenticated";
-          set({
-            resetPasswordState: errorState(errorMsg, get().resetPasswordState),
-          });
-          return null;
-        }
+            await authService.forgotPassword(email);
 
-        try {
-          set({ resetPasswordState: loadingState(get().resetPasswordState) });
+            set({ forgotPasswordState: successState(undefined) });
 
-          await authService.resetPassword(
-            currentUser.email,
-            oldPassword,
-            newPassword
-          );
+            return undefined;
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            set({
+              forgotPasswordState: errorState(
+                errorMessage,
+                get().forgotPasswordState
+              ),
+            });
+            return null;
+          }
+        },
 
-          set({ resetPasswordState: successState(undefined) });
+        // State management - these will be replaced by the generated functions
+        resetState: {} as any,
+      };
 
-          return undefined;
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          set({
-            resetPasswordState: errorState(
-              errorMessage,
-              get().resetPasswordState
-            ),
-          });
-          return null;
-        }
-      },
+      // Generate reset functions using our factory
+      const storeApi = { setState: set, getState: get };
+      const resetFunctions = createStoreResetFunctions<AuthState>(
+        storeApi,
+        asyncStateMap
+      );
 
-      forgotPassword: async (email: string) => {
-        try {
-          set({ forgotPasswordState: loadingState(get().forgotPasswordState) });
+      // Map the reset functions to our structure
+      store.resetState = {
+        auth: resetFunctions.authState,
+        resetPassword: resetFunctions.resetPasswordState,
+        forgotPassword: resetFunctions.forgotPasswordState,
+        all: resetFunctions.all,
+      };
 
-          await authService.forgotPassword(email);
-
-          set({ forgotPasswordState: successState(undefined) });
-
-          return undefined;
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          set({
-            forgotPasswordState: errorState(
-              errorMessage,
-              get().forgotPasswordState
-            ),
-          });
-          return null;
-        }
-      },
-
-      // State management
-      clearAuthState: () => set({ authState: initialAsyncState }),
-      clearResetPasswordState: () =>
-        set({ resetPasswordState: initialAsyncState }),
-      clearForgotPasswordState: () =>
-        set({ forgotPasswordState: initialAsyncState }),
-    }),
+      return store;
+    },
     {
       name: "auth-storage", // name of the item in localStorage
       partialize: (state) => ({

@@ -42,8 +42,20 @@ export const errorState = <T>(
   success: false,
 });
 
-export const resetState = <T>(): AsyncState<T> => ({
-  data: null,
+export const resetState = <T>(
+  options: { preserveData?: boolean } = {}
+): AsyncState<T> => ({
+  data: options.preserveData ? null : null, // This will be replaced with actual data if preserveData is true
+  loading: false,
+  error: null,
+  success: false,
+});
+
+// Reset only the status flags, preserving data
+export const resetStatusState = <T>(
+  currentState: AsyncState<T>
+): AsyncState<T> => ({
+  data: currentState.data,
   loading: false,
   error: null,
   success: false,

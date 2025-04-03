@@ -10,13 +10,18 @@ import AuthFormBase from "@/components/auth/AuthFormBase";
 import useAuthStore from "@/stores/authStore";
 import { useForm } from "@/app/hooks/useForm";
 import { useFormSubmission } from "@/app/hooks/useFormSubmission";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 interface ForgotPasswordFormValues {
   email: string;
 }
 
 const ForgotPasswordForm: React.FC = () => {
-  const { forgotPassword, loading, error, clearError } = useAuthStore();
+  const { forgotPassword, forgotPasswordState, resetState } = useAuthStore();
+  const { loading, error } = forgotPasswordState;
+
+  // Reset forgot password state on component unmount
+  useResetOnUnmount(resetState.forgotPassword);
 
   // Form validation rules
   const validationRules = {
@@ -44,21 +49,25 @@ const ForgotPasswordForm: React.FC = () => {
     },
   });
 
-  // Clear errors when component unmounts
-  useEffect(() => {
-    return () => {
-      clearError();
-    };
-  }, [clearError]);
-
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Only reset if we had a previous error
+    if (forgotPasswordState.error) {
+      resetState.forgotPassword();
+    }
+
     await form.handleSubmit(e);
 
     // If form is valid, submit it
     if (Object.keys(form.errors).length === 0) {
       await formSubmission.submit(form.values);
+
+      // Auto-reset success state after a delay if successful
+      if (forgotPasswordState.success) {
+        setTimeout(() => resetState.forgotPassword({ preserve: true }), 3000);
+      }
     }
   };
 

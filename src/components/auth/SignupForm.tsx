@@ -11,6 +11,7 @@ import AuthFormBase from "@/components/auth/AuthFormBase";
 import useAuthStore from "@/stores/authStore";
 import { useForm } from "@/app/hooks/useForm";
 import { useFormSubmission } from "@/app/hooks/useFormSubmission";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 interface SignupFormValues {
   firstName: string;
@@ -22,8 +23,11 @@ interface SignupFormValues {
 
 const SignupForm: React.FC = () => {
   const router = useRouter();
-  const { register, isAuthenticated, loading, error, clearError } =
-    useAuthStore();
+  const { register, isAuthenticated, authState, resetState } = useAuthStore();
+  const { loading, error } = authState;
+
+  // Reset auth state on component unmount
+  useResetOnUnmount(resetState.auth);
 
   // Form validation rules
   const validationRules = {
@@ -89,21 +93,25 @@ const SignupForm: React.FC = () => {
     }
   }, [isAuthenticated, router]);
 
-  // Clear errors when component unmounts
-  useEffect(() => {
-    return () => {
-      clearError();
-    };
-  }, [clearError]);
-
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Only reset if we had a previous error
+    if (authState.error) {
+      resetState.auth();
+    }
+
     await form.handleSubmit(e);
 
     // If form is valid, submit it
     if (Object.keys(form.errors).length === 0) {
       await formSubmission.submit(form.values);
+
+      // Auto-reset success state after a delay if successful
+      if (authState.success) {
+        setTimeout(() => resetState.auth({ preserve: true }), 3000);
+      }
     }
   };
 
