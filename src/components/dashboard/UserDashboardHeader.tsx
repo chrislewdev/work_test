@@ -62,10 +62,6 @@ export const UserDashboardHeader: React.FC<UserDashboardHeaderProps> = ({
     // This ensures state updates from closing the menu are processed
     // before we perform logout operations
     setTimeout(() => {
-      // Reset both auth and profile states before logout for clean slate - consistent pattern
-      authResetState.all();
-      profileResetState.all();
-
       // Clear profile first
       clearProfile();
 

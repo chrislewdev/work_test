@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AuthFormBase from "@/components/auth/AuthFormBase";
 import useAuthStore from "@/stores/authStore";
+import FormField from "@/components/ui_blocks/FormField";
+import FormButton from "@/components/ui_blocks/FormButton";
 import { useForm } from "@/app/hooks/useForm";
 import { useFormSubmission } from "@/app/hooks/useFormSubmission";
 import { useResetOnUnmount } from "@/app/hooks/useStateReset";
@@ -112,7 +114,56 @@ const LoginForm: React.FC = () => {
       footer={footerContent}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Form fields omitted for brevity */}
+        <FormField
+          label="Email"
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          value={form.values.email}
+          onChange={form.handleChange}
+          onBlur={() => form.handleBlur("email")}
+          error={form.errors.email}
+          touched={form.touched.email}
+          required
+          disabled={loading || formSubmission.isSubmitting}
+        />
+
+        <div>
+          <div className="flex items-center justify-between">
+            <FormField
+              label="Password"
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              value={form.values.password}
+              onChange={form.handleChange}
+              onBlur={() => form.handleBlur("password")}
+              error={form.errors.password}
+              touched={form.touched.password}
+              required
+              disabled={loading || formSubmission.isSubmitting}
+              labelClassName="flex items-center justify-between w-full"
+              containerClassName="mb-0"
+            />
+            <Link
+              href="/forgot-password"
+              className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 ml-1"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        </div>
+
+        <FormButton
+          type="submit"
+          fullWidth
+          isLoading={loading || formSubmission.isSubmitting}
+          loadingText="Signing in..."
+        >
+          Sign in to account
+        </FormButton>
       </form>
     </AuthFormBase>
   );
