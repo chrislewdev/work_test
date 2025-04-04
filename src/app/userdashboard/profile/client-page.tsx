@@ -13,7 +13,6 @@ import {
 } from "@/components/ui_blocks/SocialIcons";
 import EditPersonalInfo from "./components/EditPersonalInfo";
 import EditAddress from "./components/EditAddress";
-import EditProfile from "./components/EditProfile";
 import useAuthStore from "@/stores/authStore";
 import useProfileStore from "@/stores/profileStore";
 
@@ -46,7 +45,6 @@ export default function DashboardClientPage() {
     updateProfile,
   } = useProfileStore();
 
-  const [editingProfile, setEditingProfile] = useState(false);
   const [editingPersonalInfo, setEditingPersonalInfo] = useState(false);
   const [editingAddress, setEditingAddress] = useState(false);
 
@@ -83,11 +81,6 @@ export default function DashboardClientPage() {
   const currentUser = profile;
 
   // Handlers for updates
-  const handleProfileUpdate = async (data: any) => {
-    await updateProfile(data);
-    setEditingProfile(false);
-  };
-
   const handlePersonalInfoUpdate = async (data: any) => {
     await updateProfile(data);
     setEditingPersonalInfo(false);
@@ -99,23 +92,6 @@ export default function DashboardClientPage() {
   };
 
   function ProfileCard() {
-    if (editingProfile) {
-      return (
-        <EditProfile
-          profileData={{
-            firstName: currentUser.firstName,
-            lastName: currentUser.lastName,
-            title: currentUser.title || "",
-            location: currentUser.location || "",
-            profilePic:
-              currentUser.profilePic || "/images/photos/profile-pic.jpg",
-          }}
-          onCancel={() => setEditingProfile(false)}
-          onSave={handleProfileUpdate}
-        />
-      );
-    }
-
     return (
       <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 mb-6">
         {/* Profile card */}
@@ -173,14 +149,6 @@ export default function DashboardClientPage() {
                 <InstagramIcon className="h-4 w-4 fill-current" />
               </div>
             </Link>
-            <button
-              onClick={() => setEditingProfile(true)}
-              className="ml-2 px-3 py-1 text-sm rounded-full border border-blue-500 text-blue-600 hover:bg-blue-50 flex items-center gap-1"
-              disabled={profileLoading}
-            >
-              <EditIcon className="h-3.5 w-3.5" />
-              Edit
-            </button>
           </div>
         </div>
       </div>

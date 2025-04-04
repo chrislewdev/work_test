@@ -41,8 +41,8 @@ export default function EditPersonalInfo({
     },
     phone: {
       pattern: {
-        value: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
-        message: "Invalid phone number format",
+        value: /^[0-9]*$/,
+        message: "Only numbers are allowed",
       },
     },
   };
