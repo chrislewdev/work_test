@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import FormField from "@/components/ui_blocks/FormField";
 import FormButton from "@/components/ui_blocks/FormButton";
@@ -18,9 +18,9 @@ interface ForgotPasswordFormValues {
 
 const ForgotPasswordForm: React.FC = () => {
   const { forgotPassword, forgotPasswordState, resetState } = useAuthStore();
-  const { loading, error } = forgotPasswordState;
+  const { loading, error, success } = forgotPasswordState;
 
-  // Reset forgot password state on component unmount
+  // Reset forgot password state on component unmount - consistent pattern
   useResetOnUnmount(resetState.forgotPassword);
 
   // Form validation rules
@@ -53,7 +53,7 @@ const ForgotPasswordForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Only reset if we had a previous error
+    // Only reset if we had a previous error - consistent pattern
     if (forgotPasswordState.error) {
       resetState.forgotPassword();
     }
@@ -65,6 +65,7 @@ const ForgotPasswordForm: React.FC = () => {
       await formSubmission.submit(form.values);
 
       // Auto-reset success state after a delay if successful
+      // Consistent pattern for success state management
       if (forgotPasswordState.success) {
         setTimeout(() => resetState.forgotPassword({ preserve: true }), 3000);
       }
@@ -137,7 +138,6 @@ const ForgotPasswordForm: React.FC = () => {
         </form>
       ) : (
         <div className="text-center">
-          {/* Using as={Link} with href prop */}
           <FormButton
             as={Link}
             href="/login"

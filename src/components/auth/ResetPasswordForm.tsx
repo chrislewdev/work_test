@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import FormField from "@/components/ui_blocks/FormField";
@@ -27,7 +27,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
   const { resetPassword, resetPasswordState, resetState } = useAuthStore();
   const { loading, error } = resetPasswordState;
 
-  // Reset password state on component unmount
+  // Reset password state on component unmount - consistent pattern
   useResetOnUnmount(resetState.resetPassword);
 
   // Form validation rules
@@ -70,7 +70,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Only reset if we had a previous error
+    // Only reset if we had a previous error - consistent pattern
     if (resetPasswordState.error) {
       resetState.resetPassword();
     }
@@ -82,6 +82,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
       await formSubmission.submit(form.values);
 
       // Auto-reset success state after a delay if successful
+      // Consistent pattern for success state management
       if (resetPasswordState.success) {
         setTimeout(() => resetState.resetPassword({ preserve: true }), 3000);
       }
@@ -170,7 +171,6 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
         </form>
       ) : (
         <div className="text-center">
-          {/* Using as={Link} with href prop */}
           <FormButton
             as={Link}
             href="/login"

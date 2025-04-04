@@ -1,4 +1,4 @@
-// app/tasks/[id]/edit/client-page.tsx
+// src/app/tasks/[id]/edit/client-page.tsx
 
 "use client";
 
@@ -8,6 +8,7 @@ import { Container } from "@/components/ui_blocks/Container";
 import BackButton from "@/components/ui_blocks/BackButton";
 import TaskForm from "@/components/tasks/TaskForm";
 import useTaskStore from "@/stores/taskStore";
+import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 
 interface EditTaskClientPageProps {
   taskId: string;
@@ -17,12 +18,20 @@ export default function EditTaskClientPage({
   taskId,
 }: EditTaskClientPageProps) {
   const router = useRouter();
-  const { currentTask, fetchTaskById, loading, error } = useTaskStore();
+  const { currentTask, fetchTaskById, loading, error, resetState } =
+    useTaskStore();
+
+  // Reset both detail state and mutation state on component unmount
+  // This is a good example of using the hook with multiple reset functions
+  useResetOnUnmount(resetState.taskDetail);
+  useResetOnUnmount(resetState.taskMutation);
 
   // Fetch task data when component mounts
   useEffect(() => {
+    // Reset task detail state before fetching to ensure clean slate
+    resetState.taskDetail();
     fetchTaskById(taskId);
-  }, [fetchTaskById, taskId]);
+  }, [fetchTaskById, taskId, resetState]);
 
   // Handle cancel button click
   const handleCancel = () => {

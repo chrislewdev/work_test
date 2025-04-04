@@ -1,4 +1,4 @@
-// app/tasks/[id]/client-page.tsx
+// src/app/tasks/[id]/client-page.tsx
 
 "use client";
 
@@ -19,13 +19,15 @@ export default function TaskDetailClientPage({ taskId }: TaskDetailPageProps) {
     useTaskStore();
   const { loading, error } = taskDetailState;
 
-  // Reset detail state on component unmount
+  // Reset detail state on component unmount - consistent pattern
   useResetOnUnmount(resetState.taskDetail);
 
   // Fetch task data when component mounts
   useEffect(() => {
+    // Reset detail state before fetching to ensure clean slate - consistent pattern
+    resetState.taskDetail();
     fetchTaskById(taskId);
-  }, [fetchTaskById, taskId]);
+  }, [fetchTaskById, taskId, resetState]);
 
   // Handle cancel button click
   const handleCancel = () => {

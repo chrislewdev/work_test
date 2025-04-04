@@ -1,4 +1,5 @@
-// components/dashboard/TaskDetailContent.tsx
+// src/components/dashboard/TaskDetailContent.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -18,8 +19,6 @@ import { cn } from "@/app/lib/utils";
 import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 import useTaskStore from "@/stores/taskStore";
 
-import taskData from "@/app/lib/userTaskData.json";
-
 interface TaskDetailContentProps {
   taskId: string;
 }
@@ -30,36 +29,36 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
   const [status, setStatus] = useState<string>("");
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [isAssignedToUser, setIsAssignedToUser] = useState(false); // Track if task is assigned to current user
-  const { resetState } = useTaskStore();
+  const { resetState, fetchTaskById } = useTaskStore();
 
-  // Reset task detail state on component unmount
+  // Reset task detail state on component unmount - consistent pattern
   useResetOnUnmount(resetState.taskDetail);
 
   // The back path is always the dashboard tasks page
   const backPath = "/userdashboard/tasks";
 
+  // Fetch task data when component mounts
   useEffect(() => {
-    // Simulate API call with a slight delay
-    const timer = setTimeout(() => {
-      const foundTask = taskData.find((t) => t.id === taskId);
-      if (foundTask) {
-        // Ensure the task status conforms to the TaskStatus type
-        const validStatus = foundTask.status as
-          | "to do"
-          | "in progress"
-          | "completed";
-        // Set task with properly typed status
-        setTask({
-          ...foundTask,
-          status: validStatus,
-        });
-        setStatus(validStatus);
-      }
-      setIsLoading(false);
-    }, 500);
+    // Reset task detail state before fetching to ensure clean slate - consistent pattern
+    resetState.taskDetail();
 
-    return () => clearTimeout(timer);
-  }, [taskId]);
+    // Fetch task data
+    const fetchTask = async () => {
+      try {
+        const fetchedTask = await fetchTaskById(taskId);
+        if (fetchedTask) {
+          setTask(fetchedTask as Task);
+          setStatus(fetchedTask.status);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching task:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchTask();
+  }, [taskId, fetchTaskById, resetState]);
 
   // Format date to a more readable format
   const formatDate = (dateString: string) => {

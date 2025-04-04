@@ -13,99 +13,44 @@ import useTaskStore, { TaskSortOption } from "@/stores/taskStore";
 import FilterPanel from "@/components/tasks/FilterPanel";
 import ActiveFilters from "@/components/tasks/ActiveFilters";
 import { useResetOnUnmount } from "@/app/hooks/useStateReset";
-// Direct import of task data
-import taskData from "@/app/lib/userTaskData.json";
 
 // Different page sizes based on screen size
 const DESKTOP_ITEMS_PER_PAGE = 12; // 3 columns x 4 rows
 const MOBILE_ITEMS_PER_PAGE = 4; // 4 items for mobile view
 
 const TaskManagementContent: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const {
+    tasks,
+    filteredTasks,
+    taskListState, // Use taskListState instead of direct loading/error
+    fetchTasks,
+    sortBy,
+    setSortOption,
+    filters,
+    activeFilterCount,
+    resetState,
+  } = useTaskStore();
+
+  // Destructure loading and error from taskListState
+  const { loading, error } = taskListState;
+
+  // Reset task list state on component unmount - consistent pattern
+  useResetOnUnmount(resetState.taskList);
 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Get task store for sorting and filtering
-  const {
-    sortBy,
-    setSortOption,
-    filters,
-    activeFilterCount,
-    clearFilters,
-    resetState,
-  } = useTaskStore();
-
-  // Reset task list state on component unmount
-  useResetOnUnmount(resetState.taskList);
-
-  // Load task data with a simulated loading delay for better UX
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // Explicitly cast taskData to Task[] to satisfy TypeScript
-      const typedTaskData = taskData as Task[];
-
-      // Set the tasks in the state
-      setTasks(typedTaskData);
-
-      // Also set filtered tasks initially to all tasks
-      setFilteredTasks(typedTaskData);
-
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Apply sorting and filtering when tasks or sort/filter options change
-  useEffect(() => {
-    if (tasks.length > 0) {
-      // First apply sorting
-      const sortedTasks = sortTasks([...tasks], sortBy);
-
-      // Then apply filtering if there are active filters
-      const filtered =
-        activeFilterCount > 0 ? applyFilters(sortedTasks) : sortedTasks;
-
-      setFilteredTasks(filtered);
-    }
-  }, [tasks, sortBy, filters, activeFilterCount]);
-
-  // Check if URL has a tab parameter
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab && ["all", "todo", "inprogress", "completed"].includes(tab)) {
-      setActiveTab(tab);
-    }
-  }, [searchParams]);
-
-  // Handle tab change
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setCurrentPage(1);
-
-    // Update URL with the tab
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tab);
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
-  // Filter tasks based on status
-  const todoTasks = filteredTasks.filter((task) => task.status === "to do");
-  const inProgressTasks = filteredTasks.filter(
-    (task) => task.status === "in progress"
-  );
-  const completedTasks = filteredTasks.filter(
-    (task) => task.status === "completed"
-  );
-
+  // State for current page
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  // State for sort dropdown visibility
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  // State for filter panel visibility
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  // Last active filter count for tracking changes
+  const [lastFilterCount, setLastFilterCount] = useState(activeFilterCount);
+  // State for active tab
+  const [activeTab, setActiveTab] = useState<string>("all");
   // State to track screen size
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
@@ -126,6 +71,50 @@ const TaskManagementContent: React.FC = () => {
       window.removeEventListener("resize", checkIsMobile);
     };
   }, []);
+
+  // Check if URL has a tab parameter
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["all", "todo", "inprogress", "completed"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  // Fetch tasks on component mount
+  useEffect(() => {
+    // Reset task list state before fetching to ensure clean slate - consistent pattern
+    resetState.taskList();
+    fetchTasks();
+  }, [fetchTasks, resetState]);
+
+  // Track filter changes and reset pagination
+  useEffect(() => {
+    // Only react to actual changes in the filter count
+    if (activeFilterCount !== lastFilterCount) {
+      setLastFilterCount(activeFilterCount);
+      setCurrentPage(1);
+    }
+  }, [activeFilterCount, lastFilterCount]);
+
+  // Handle tab change
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+
+    // Update URL with the tab
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Filter tasks based on status
+  const todoTasks = filteredTasks.filter((task) => task.status === "to do");
+  const inProgressTasks = filteredTasks.filter(
+    (task) => task.status === "in progress"
+  );
+  const completedTasks = filteredTasks.filter(
+    (task) => task.status === "completed"
+  );
 
   // Calculate pagination based on screen size
   const getPaginatedTasks = (taskList: Task[]) => {
@@ -151,7 +140,6 @@ const TaskManagementContent: React.FC = () => {
   };
 
   // Calculate total pages - ensures at least 1 page even if empty
-  // Now accounts for different page sizes on mobile vs desktop
   const getTotalPages = () => {
     let total;
     switch (activeTab) {
@@ -174,7 +162,84 @@ const TaskManagementContent: React.FC = () => {
     return Math.max(1, Math.ceil(total / itemsPerPage));
   };
 
-  // Render pagination - with fixed position for navigation buttons and max 5 page numbers on desktop
+  // Handle sort selection
+  const handleSortChange = (option: TaskSortOption) => {
+    setSortOption(option);
+    setShowSortDropdown(false);
+    // Reset to first page when sorting changes
+    resetPage();
+  };
+
+  // Reset page function to pass to filter components
+  const resetPage = () => {
+    setCurrentPage(1);
+  };
+
+  // Toggle filter panel
+  const toggleFilterPanel = () => {
+    setShowFilterPanel(!showFilterPanel);
+  };
+
+  // Get sort option display text
+  const getSortDisplayText = (option: TaskSortOption) => {
+    switch (option) {
+      case "deadline-asc":
+        return "Deadline (Earliest First)";
+      case "deadline-desc":
+        return "Deadline (Latest First)";
+      case "budget-asc":
+        return "Budget (Low to High)";
+      case "budget-desc":
+        return "Budget (High to Low)";
+      case "date-created-asc":
+        return "Date Created (Oldest First)";
+      case "date-created-desc":
+        return "Date Created (Newest First)";
+      default:
+        return "Sort Tasks";
+    }
+  };
+
+  // Array of tab data for easy mapping
+  const tabData = [
+    {
+      id: "all",
+      label: "All Tasks",
+      count: filteredTasks.length,
+    },
+    {
+      id: "todo",
+      label: "To Do",
+      count: todoTasks.length,
+    },
+    {
+      id: "inprogress",
+      label: "In Progress",
+      count: inProgressTasks.length,
+    },
+    {
+      id: "completed",
+      label: "Completed",
+      count: completedTasks.length,
+    },
+  ];
+
+  // Close sort dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showSortDropdown && !target.closest("[data-sort-dropdown]")) {
+        setShowSortDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSortDropdown]);
+
+  // Render pagination with fixed position for navigation buttons
   const renderPagination = () => {
     const totalPages = getTotalPages();
 
@@ -268,187 +333,6 @@ const TaskManagementContent: React.FC = () => {
       </div>
     );
   };
-
-  // Array of tab data for easy mapping
-  const tabData = [
-    {
-      id: "all",
-      label: "All Tasks",
-      count: filteredTasks.length,
-    },
-    {
-      id: "todo",
-      label: "To Do",
-      count: todoTasks.length,
-    },
-    {
-      id: "inprogress",
-      label: "In Progress",
-      count: inProgressTasks.length,
-    },
-    {
-      id: "completed",
-      label: "Completed",
-      count: completedTasks.length,
-    },
-  ];
-
-  // Handle sort selection
-  const handleSortChange = (option: TaskSortOption) => {
-    setSortOption(option);
-    setShowSortDropdown(false);
-    setCurrentPage(1);
-  };
-
-  // Get sort option display text
-  const getSortDisplayText = (option: TaskSortOption) => {
-    switch (option) {
-      case "deadline-asc":
-        return "Deadline (Earliest First)";
-      case "deadline-desc":
-        return "Deadline (Latest First)";
-      case "budget-asc":
-        return "Budget (Low to High)";
-      case "budget-desc":
-        return "Budget (High to Low)";
-      case "date-created-asc":
-        return "Date Created (Oldest First)";
-      case "date-created-desc":
-        return "Date Created (Newest First)";
-      default:
-        return "Sort Tasks";
-    }
-  };
-
-  // Sort tasks based on the selected option
-  function sortTasks(tasks: Task[], sortOption: TaskSortOption): Task[] {
-    const sortedTasks = [...tasks]; // Create a copy to avoid mutating the original
-
-    switch (sortOption) {
-      case "deadline-asc":
-        return sortedTasks.sort(
-          (a, b) =>
-            new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
-        );
-
-      case "deadline-desc":
-        return sortedTasks.sort(
-          (a, b) =>
-            new Date(b.deadline).getTime() - new Date(a.deadline).getTime()
-        );
-
-      case "budget-asc":
-        return sortedTasks.sort((a, b) => a.budget - b.budget);
-
-      case "budget-desc":
-        return sortedTasks.sort((a, b) => b.budget - a.budget);
-
-      case "date-created-asc":
-        return sortedTasks.sort(
-          (a, b) =>
-            new Date(a.dateCreated).getTime() -
-            new Date(b.dateCreated).getTime()
-        );
-
-      case "date-created-desc":
-        return sortedTasks.sort(
-          (a, b) =>
-            new Date(b.dateCreated).getTime() -
-            new Date(a.dateCreated).getTime()
-        );
-
-      default:
-        // Default to deadline ascending (earliest first)
-        return sortedTasks.sort(
-          (a, b) =>
-            new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
-        );
-    }
-  }
-
-  // Apply filters function - simplified version
-  function applyFilters(tasks: Task[]): Task[] {
-    return tasks.filter((task) => {
-      // Topic filter
-      if (filters.topics.length > 0 && !filters.topics.includes(task.topic)) {
-        return false;
-      }
-
-      // Subject filter
-      if (
-        filters.subjects.length > 0 &&
-        !filters.subjects.includes(task.subject)
-      ) {
-        return false;
-      }
-
-      // Budget range filter
-      if (
-        filters.budgetRange.min !== null &&
-        task.budget < filters.budgetRange.min
-      ) {
-        return false;
-      }
-
-      if (
-        filters.budgetRange.max !== null &&
-        task.budget > filters.budgetRange.max
-      ) {
-        return false;
-      }
-
-      // Priority filter - simplified for now
-      // Would need to calculate priority based on deadline
-      if (filters.priority.length > 0) {
-        // Simple priority calculation
-        const deadline = new Date(task.deadline);
-        const today = new Date();
-        const daysUntilDeadline = Math.ceil(
-          (deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-        );
-
-        let priority: "high" | "medium" | "low";
-        if (daysUntilDeadline <= 7) {
-          priority = "high";
-        } else if (daysUntilDeadline <= 14) {
-          priority = "medium";
-        } else {
-          priority = "low";
-        }
-
-        if (!filters.priority.includes(priority)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }
-
-  // Reset page function for filters
-  const resetPage = () => {
-    setCurrentPage(1);
-  };
-
-  // Toggle filter panel
-  const toggleFilterPanel = () => {
-    setShowFilterPanel(!showFilterPanel);
-  };
-
-  // Close sort dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (showSortDropdown && !target.closest("[data-sort-dropdown]")) {
-        setShowSortDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showSortDropdown]);
 
   return (
     <div className="space-y-6">
@@ -576,7 +460,6 @@ const TaskManagementContent: React.FC = () => {
         </div>
       </div>
 
-      {/* Active filters */}
       <ActiveFilters resetPage={resetPage} />
 
       <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm overflow-hidden">
@@ -596,14 +479,14 @@ const TaskManagementContent: React.FC = () => {
                 <div className="flex items-center">
                   {tab.label}{" "}
                   <span className="ml-1 rounded-full bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 text-xs">
-                    {isLoading ? "..." : tab.count}
+                    {loading ? "..." : tab.count}
                   </span>
                 </div>
               </button>
             ))}
           </div>
 
-          {/* Desktop view: horizontal tabs (unchanged) */}
+          {/* Desktop view: horizontal tabs */}
           <div className="hidden md:flex overflow-x-auto">
             {tabData.map((tab) => (
               <button
@@ -617,7 +500,7 @@ const TaskManagementContent: React.FC = () => {
               >
                 {tab.label}{" "}
                 <span className="ml-1 rounded-full bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 text-xs">
-                  {isLoading ? "..." : tab.count}
+                  {loading ? "..." : tab.count}
                 </span>
               </button>
             ))}
@@ -635,11 +518,11 @@ const TaskManagementContent: React.FC = () => {
                     To Do
                   </h2>
                   <span className="rounded-full bg-gray-100 dark:bg-zinc-700 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-300">
-                    {isLoading ? "..." : todoTasks.length}
+                    {loading ? "..." : todoTasks.length}
                   </span>
                 </div>
                 <div className="space-y-3" style={{ minHeight: "580px" }}>
-                  {isLoading ? (
+                  {loading ? (
                     <TaskSkeleton count={4} />
                   ) : (
                     <>
@@ -667,11 +550,11 @@ const TaskManagementContent: React.FC = () => {
                     In Progress
                   </h2>
                   <span className="rounded-full bg-gray-100 dark:bg-zinc-700 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-300">
-                    {isLoading ? "..." : inProgressTasks.length}
+                    {loading ? "..." : inProgressTasks.length}
                   </span>
                 </div>
                 <div className="space-y-3" style={{ minHeight: "580px" }}>
-                  {isLoading ? (
+                  {loading ? (
                     <TaskSkeleton count={4} />
                   ) : (
                     <>
@@ -699,11 +582,11 @@ const TaskManagementContent: React.FC = () => {
                     Completed
                   </h2>
                   <span className="rounded-full bg-gray-100 dark:bg-zinc-700 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-300">
-                    {isLoading ? "..." : completedTasks.length}
+                    {loading ? "..." : completedTasks.length}
                   </span>
                 </div>
                 <div className="space-y-3" style={{ minHeight: "580px" }}>
-                  {isLoading ? (
+                  {loading ? (
                     <TaskSkeleton count={4} />
                   ) : (
                     <>
@@ -737,7 +620,7 @@ const TaskManagementContent: React.FC = () => {
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 content-start"
                 style={{ gridAutoRows: "160px" }}
               >
-                {isLoading ? (
+                {loading ? (
                   <TaskSkeleton count={12} />
                 ) : getTasksForActiveTab().length > 0 ? (
                   getTasksForActiveTab().map((task) => (

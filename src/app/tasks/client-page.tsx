@@ -1,4 +1,4 @@
-// app/tasks/client-page.tsx
+// src/app/tasks/client-page.tsx
 
 "use client";
 
@@ -40,7 +40,7 @@ export default function TasksClientPage({
 
   const router = useRouter();
 
-  // Reset task list state on component unmount
+  // Reset task list state on component unmount - consistent pattern
   useResetOnUnmount(resetState.taskList);
 
   // State for current page
@@ -65,9 +65,11 @@ export default function TasksClientPage({
 
   // Fetch tasks on component mount
   useEffect(() => {
+    // Reset task list state before fetching to ensure clean slate - consistent pattern
+    resetState.taskList();
     // Fetch tasks - they will be sorted by the default sort option in the store
     fetchTasks();
-  }, [fetchTasks]);
+  }, [fetchTasks, resetState]);
 
   // Track filter changes and reset pagination
   useEffect(() => {
@@ -179,84 +181,42 @@ export default function TasksClientPage({
               {showSortDropdown && (
                 <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-zinc-800 dark:ring-zinc-700">
                   <div className="py-1">
-                    <button
-                      className={`block px-4 py-2 text-sm w-full text-left ${
-                        sortBy === "deadline-asc"
-                          ? "bg-gray-100 text-gray-900 dark:bg-zinc-700 dark:text-zinc-100"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSortChange("deadline-asc");
-                      }}
-                    >
-                      Deadline (Earliest First)
-                    </button>
-                    <button
-                      className={`block px-4 py-2 text-sm w-full text-left ${
-                        sortBy === "deadline-desc"
-                          ? "bg-gray-100 text-gray-900 dark:bg-zinc-700 dark:text-zinc-100"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSortChange("deadline-desc");
-                      }}
-                    >
-                      Deadline (Latest First)
-                    </button>
-                    <button
-                      className={`block px-4 py-2 text-sm w-full text-left ${
-                        sortBy === "budget-desc"
-                          ? "bg-gray-100 text-gray-900 dark:bg-zinc-700 dark:text-zinc-100"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSortChange("budget-desc");
-                      }}
-                    >
-                      Budget (High to Low)
-                    </button>
-                    <button
-                      className={`block px-4 py-2 text-sm w-full text-left ${
-                        sortBy === "budget-asc"
-                          ? "bg-gray-100 text-gray-900 dark:bg-zinc-700 dark:text-zinc-100"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSortChange("budget-asc");
-                      }}
-                    >
-                      Budget (Low to High)
-                    </button>
-                    <button
-                      className={`block px-4 py-2 text-sm w-full text-left ${
-                        sortBy === "date-created-desc"
-                          ? "bg-gray-100 text-gray-900 dark:bg-zinc-700 dark:text-zinc-100"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSortChange("date-created-desc");
-                      }}
-                    >
-                      Date Created (Newest First)
-                    </button>
-                    <button
-                      className={`block px-4 py-2 text-sm w-full text-left ${
-                        sortBy === "date-created-asc"
-                          ? "bg-gray-100 text-gray-900 dark:bg-zinc-700 dark:text-zinc-100"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSortChange("date-created-asc");
-                      }}
-                    >
-                      Date Created (Oldest First)
-                    </button>
+                    {/* Sort options */}
+                    {[
+                      {
+                        value: "deadline-asc",
+                        label: "Deadline (Earliest First)",
+                      },
+                      {
+                        value: "deadline-desc",
+                        label: "Deadline (Latest First)",
+                      },
+                      { value: "budget-desc", label: "Budget (High to Low)" },
+                      { value: "budget-asc", label: "Budget (Low to High)" },
+                      {
+                        value: "date-created-desc",
+                        label: "Date Created (Newest First)",
+                      },
+                      {
+                        value: "date-created-asc",
+                        label: "Date Created (Oldest First)",
+                      },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        className={`block px-4 py-2 text-sm w-full text-left ${
+                          sortBy === option.value
+                            ? "bg-gray-100 text-gray-900 dark:bg-zinc-700 dark:text-zinc-100"
+                            : "text-gray-700 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSortChange(option.value as TaskSortOption);
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}

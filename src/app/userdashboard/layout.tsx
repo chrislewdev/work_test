@@ -42,7 +42,7 @@ export default function UserDashboardLayout({
   const { loading, error } = authState;
   const router = useRouter();
 
-  // Reset auth state on component unmount
+  // Reset auth state on component unmount - consistent pattern
   useResetOnUnmount(resetState.auth);
 
   // Authentication check

@@ -1,4 +1,4 @@
-// app/userdashboard/tasks/[id]/client.tsx
+// src/app/userdashboard/tasks/[id]/client.tsx
 
 "use client";
 
@@ -16,7 +16,7 @@ export default function TaskDetailPageClient({
 }: TaskDetailPageClientProps) {
   const { resetState } = useTaskStore();
 
-  // Reset task detail state on component unmount
+  // Reset task detail state on component unmount - consistent pattern
   useResetOnUnmount(resetState.taskDetail);
 
   return <TaskDetailContent taskId={taskId} />;

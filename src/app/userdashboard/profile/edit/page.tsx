@@ -1,4 +1,4 @@
-// app/userdashboard/profile/edit/page.tsx
+// src/app/userdashboard/profile/edit/page.tsx
 
 "use client";
 
@@ -18,7 +18,7 @@ export default function ProfileEditPage() {
   // Correctly access loading and error from profileState
   const { loading, error } = profileState;
 
-  // Reset profile state when component unmounts
+  // Reset profile state when component unmounts - consistent pattern
   useResetOnUnmount(resetState.profile);
 
   // Redirect if not authenticated
@@ -26,10 +26,12 @@ export default function ProfileEditPage() {
     if (!isAuthenticated) {
       router.push("/login");
     } else if (user && !profile) {
+      // Reset profile state before fetching to ensure clean slate - consistent pattern
+      resetState.profile();
       // If authenticated but no profile loaded, fetch it
       fetchProfile(user.id);
     }
-  }, [isAuthenticated, user, profile, router, fetchProfile]);
+  }, [isAuthenticated, user, profile, router, fetchProfile, resetState]);
 
   // Handle cancel button click
   const handleCancel = () => {
