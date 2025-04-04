@@ -41,8 +41,8 @@ export default function EditPersonalInfo({
     },
     phone: {
       pattern: {
-        value: /^[0-9]*$/,
-        message: "Only numbers are allowed",
+        value: /^[0-9+\-]*$/,
+        message: "Only numbers, plus signs, and hyphens are allowed",
       },
     },
   };
