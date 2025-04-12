@@ -16,13 +16,13 @@ interface EditAddressProps {
     taxId: string;
   };
   onCancel: () => void;
-  onClose: () => void; // Changed to onClose to better reflect its purpose
+  onSave: (data: any) => void; // Changed from onClose to onSave to match parent component
 }
 
 export default function EditAddress({
   addressData,
   onCancel,
-  onClose,
+  onSave, // Changed from onClose to onSave
 }: EditAddressProps) {
   const { updateProfile, profileState, resetState } = useProfileStore();
 
@@ -43,12 +43,12 @@ export default function EditAddress({
     if (success) {
       // Close the form after a delay to show the success message
       const timer = setTimeout(() => {
-        onClose();
+        onSave(form.values); // Changed from onClose to onSave
       }, 1500);
 
       return () => clearTimeout(timer);
     }
-  }, [success, onClose]);
+  }, [success, onSave, form.values]);
 
   // Determine form status based on error or success
   const getFormStatus = () => {
