@@ -1,6 +1,6 @@
 // app/userdashboard/profile/components/EditAddress.tsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FormField from "@/components/ui_blocks/FormField";
 import FormButton from "@/components/ui_blocks/FormButton";
 import FormActions from "@/components/ui_blocks/FormActions";
@@ -33,6 +33,33 @@ export default function EditAddress({
 }: EditAddressProps) {
   // Track local form submission to prevent double clicks
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Track validation errors
+  const [validationFailed, setValidationFailed] = useState(false);
+  // Track if form submission was attempted
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  // Form validation rules
+  const validationRules = {
+    country: {
+      required: "Country is required",
+    },
+    cityState: {
+      required: "City/State is required",
+    },
+    postalCode: {
+      required: "Postal code is required",
+      pattern: {
+        value: /^[0-9]*$/,
+        message: "Postal code must contain only numbers",
+      },
+    },
+    taxId: {
+      pattern: {
+        value: /^[A-Z0-9\-]*$/i,
+        message: "Invalid TAX ID format",
+      },
+    },
+  };
 
   // Initialize form with useForm hook
   const form = useForm({
@@ -42,7 +69,40 @@ export default function EditAddress({
       postalCode: addressData.postalCode,
       taxId: addressData.taxId,
     },
+    validationRules,
+    onSubmit: async (values) => {
+      console.log("Form is valid, submitting data:", values);
+      await onSubmit(values);
+      console.log("Form submitted successfully");
+    },
   });
+
+  // Reset isSubmitting if parent reports success or error
+  useEffect(() => {
+    if (isSuccess || isError) {
+      setIsSubmitting(false);
+    }
+  }, [isSuccess, isError]);
+
+  // Watch form.isSubmitting to reset our local isSubmitting state
+  useEffect(() => {
+    if (!form.isSubmitting && isSubmitting) {
+      setIsSubmitting(false);
+    }
+  }, [form.isSubmitting, isSubmitting]);
+
+  // Watch form errors and check if validation failed after submission attempt
+  useEffect(() => {
+    if (submitAttempted) {
+      const hasErrors = Object.keys(form.errors).length > 0;
+      setValidationFailed(hasErrors);
+
+      // If no errors, we can clear the submitAttempted flag
+      if (!hasErrors) {
+        setSubmitAttempted(false);
+      }
+    }
+  }, [form.errors, submitAttempted]);
 
   // Determine form status based on error or success
   const getFormStatus = () => {
@@ -50,6 +110,13 @@ export default function EditAddress({
       return {
         type: "error" as const,
         message: errorMessage,
+      };
+    }
+
+    if (validationFailed) {
+      return {
+        type: "error" as const,
+        message: "Please fix the errors before submitting the form.",
       };
     }
 
@@ -63,34 +130,29 @@ export default function EditAddress({
     return undefined;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Run form validation
-    form.handleSubmit(e);
+    console.log("Form submit triggered");
 
     // Prevent double submission
-    if (isSubmitting) return;
-
-    // If form is valid, call the parent's submit handler
-    if (Object.keys(form.errors).length === 0) {
-      try {
-        setIsSubmitting(true);
-        await onSubmit(form.values);
-        // Note: We don't need to handle success/error here as it's managed by the parent component
-      } catch (error) {
-        console.error("Error submitting form:", error);
-      } finally {
-        // Reset submission state if not redirecting or closing
-        if (!isSuccess) {
-          setIsSubmitting(false);
-        }
-      }
+    if (isSubmitting || isLoading || form.isSubmitting) {
+      console.log("Submission already in progress, skipping");
+      return;
     }
+
+    // Mark that user attempted to submit
+    setSubmitAttempted(true);
+
+    // Set local isSubmitting state
+    setIsSubmitting(true);
+
+    // Call form's handleSubmit
+    form.handleSubmit(e);
   };
 
   // Calculate if the form should be disabled
-  const isFormDisabled = isLoading || isSubmitting || isSuccess;
+  const isFormDisabled =
+    isLoading || isSubmitting || form.isSubmitting || isSuccess;
 
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 border border-gray-200 dark:border-zinc-700">
@@ -118,6 +180,7 @@ export default function EditAddress({
             onBlur={() => form.handleBlur("country")}
             error={form.errors.country}
             touched={form.touched.country}
+            required
             disabled={isFormDisabled}
           />
 
@@ -131,6 +194,7 @@ export default function EditAddress({
             onBlur={() => form.handleBlur("cityState")}
             error={form.errors.cityState}
             touched={form.touched.cityState}
+            required
             disabled={isFormDisabled}
           />
 
@@ -144,6 +208,7 @@ export default function EditAddress({
             onBlur={() => form.handleBlur("postalCode")}
             error={form.errors.postalCode}
             touched={form.touched.postalCode}
+            required
             disabled={isFormDisabled}
           />
 
@@ -172,7 +237,7 @@ export default function EditAddress({
           </FormButton>
           <FormButton
             type="submit"
-            isLoading={isLoading || isSubmitting}
+            isLoading={isLoading || isSubmitting || form.isSubmitting}
             loadingText="Saving..."
             disabled={isFormDisabled}
           >
