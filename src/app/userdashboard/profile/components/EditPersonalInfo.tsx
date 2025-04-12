@@ -1,13 +1,12 @@
 // app/userdashboard/profile/components/EditPersonalInfo.tsx
 
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import FormField from "@/components/ui_blocks/FormField";
 import TextAreaField from "@/components/ui_blocks/TextAreaField";
 import FormButton from "@/components/ui_blocks/FormButton";
 import FormActions from "@/components/ui_blocks/FormActions";
 import FormStatus from "@/components/ui_blocks/FormStatus";
 import { useForm } from "@/app/hooks/useForm";
-import useProfileStore from "@/stores/profileStore";
 
 interface EditPersonalInfoProps {
   profileData: {
@@ -18,17 +17,24 @@ interface EditPersonalInfoProps {
     bio: string;
   };
   onCancel: () => void;
-  onSave: (data: any) => void; // Changed from onClose to onSave to match parent component
+  onSubmit: (data: any) => Promise<void>;
+  isLoading?: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+  isSuccess?: boolean;
 }
 
 export default function EditPersonalInfo({
   profileData,
   onCancel,
-  onSave, // Changed from onClose to onSave
+  onSubmit,
+  isLoading = false,
+  isError = false,
+  errorMessage = "",
+  isSuccess = false,
 }: EditPersonalInfoProps) {
-  const { updateProfile, profileState, resetState } = useProfileStore();
-
-  const { loading, error, success } = profileState;
+  // Track local form submission to prevent double clicks
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form validation rules
   const validationRules = {
@@ -65,28 +71,16 @@ export default function EditPersonalInfo({
     validationRules,
   });
 
-  // Monitor success state to close form after successful update
-  useEffect(() => {
-    if (success) {
-      // Close the form after a delay to show the success message
-      const timer = setTimeout(() => {
-        onSave(form.values); // Changed from onClose to onSave
-      }, 1500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [success, onSave, form.values]);
-
   // Determine form status based on error or success
   const getFormStatus = () => {
-    if (error) {
+    if (isError) {
       return {
         type: "error" as const,
-        message: error,
+        message: errorMessage,
       };
     }
 
-    if (success) {
+    if (isSuccess) {
       return {
         type: "success" as const,
         message: "Profile updated successfully.",
@@ -98,19 +92,34 @@ export default function EditPersonalInfo({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Run form validation
     form.handleSubmit(e);
+    console.log("onClick");
 
-    // If form is valid, save it
+    // Prevent double submission
+    // if (isSubmitting) return;
+
+    // If form is valid, call the parent's submit handler
     if (Object.keys(form.errors).length === 0) {
-      // Reset state before submitting to clear any previous messages
-      resetState.profile();
-
-      // Call the update directly (no intermediate handler)
-      await updateProfile(form.values);
-
-      // The useEffect above will handle closing the form if successful
+      try {
+        setIsSubmitting(true);
+        await onSubmit(form.values);
+        console.log("success");
+        // Note: We don't need to handle success/error here as it's managed by the parent component
+      } catch (error) {
+        console.error("Error submitting form:", error);
+      } finally {
+        // Reset submission state if not redirecting or closing
+        if (!isSuccess) {
+          setIsSubmitting(false);
+        }
+      }
     }
   };
+
+  // Calculate if the form should be disabled
+  const isFormDisabled = isLoading || isSubmitting || isSuccess;
 
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 border border-gray-200 dark:border-zinc-700 mb-6">
@@ -139,7 +148,7 @@ export default function EditPersonalInfo({
             error={form.errors.firstName}
             touched={form.touched.firstName}
             required
-            disabled={loading}
+            disabled={isFormDisabled}
           />
 
           <FormField
@@ -153,7 +162,7 @@ export default function EditPersonalInfo({
             error={form.errors.lastName}
             touched={form.touched.lastName}
             required
-            disabled={loading}
+            disabled={isFormDisabled}
           />
 
           <FormField
@@ -180,7 +189,7 @@ export default function EditPersonalInfo({
             onBlur={() => form.handleBlur("phone")}
             error={form.errors.phone}
             touched={form.touched.phone}
-            disabled={loading}
+            disabled={isFormDisabled}
           />
 
           <TextAreaField
@@ -194,7 +203,7 @@ export default function EditPersonalInfo({
             touched={form.touched.bio}
             rows={3}
             className="md:col-span-2"
-            disabled={loading}
+            disabled={isFormDisabled}
           />
         </div>
 
@@ -203,15 +212,15 @@ export default function EditPersonalInfo({
             type="button"
             variant="secondary"
             onClick={onCancel}
-            disabled={loading}
+            disabled={isFormDisabled}
           >
             Cancel
           </FormButton>
           <FormButton
             type="submit"
-            isLoading={loading}
+            isLoading={isLoading || isSubmitting}
             loadingText="Saving..."
-            disabled={loading || success}
+            disabled={isFormDisabled}
           >
             Save Changes
           </FormButton>
