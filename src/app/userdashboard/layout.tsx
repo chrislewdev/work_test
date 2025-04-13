@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, User, ClipboardList } from "lucide-react";
+import { LayoutDashboard, User, ClipboardList, ListChecks } from "lucide-react";
 import { XMarkIcon, Bars3Icon } from "@heroicons/react/24/outline";
 import { cn } from "@/app/lib/utils";
 import UserDashboardHeader, {
@@ -26,6 +26,11 @@ const navItems = [
     name: "Task Management",
     href: "/userdashboard/tasks",
     icon: ClipboardList,
+  },
+  {
+    name: "Available Tasks",
+    href: "/userdashboard/available-tasks",
+    icon: ListChecks,
   },
 ];
 
