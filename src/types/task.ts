@@ -14,7 +14,11 @@ export interface Task {
   dateCreated: string;
   deadline: string;
   budget: number;
-  status: "to do" | "in progress" | "completed";
+  status: "to do" | "in progress" | "completed" | "pending review";
 }
 
-export type TaskStatus = "to do" | "in progress" | "completed";
+export type TaskStatus =
+  | "to do"
+  | "in progress"
+  | "completed"
+  | "pending review";

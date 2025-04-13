@@ -33,7 +33,7 @@ export interface Task {
   dateCreated: string;
   deadline: string;
   budget: number;
-  status: "to do" | "in progress" | "completed";
+  status: "to do" | "in progress" | "completed" | "pending review";
 }
 
 // Sort options for tasks

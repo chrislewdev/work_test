@@ -75,7 +75,10 @@ const TaskManagementContent: React.FC = () => {
   // Check if URL has a tab parameter
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && ["all", "todo", "inprogress", "completed"].includes(tab)) {
+    if (
+      tab &&
+      ["all", "todo", "inprogress", "pendingreview", "completed"].includes(tab)
+    ) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -112,6 +115,10 @@ const TaskManagementContent: React.FC = () => {
   const inProgressTasks = filteredTasks.filter(
     (task) => task.status === "in progress"
   );
+  // Add new filter for pending review tasks
+  const pendingReviewTasks = filteredTasks.filter(
+    (task) => task.status === "pending review"
+  );
   const completedTasks = filteredTasks.filter(
     (task) => task.status === "completed"
   );
@@ -132,6 +139,8 @@ const TaskManagementContent: React.FC = () => {
         return getPaginatedTasks(todoTasks);
       case "inprogress":
         return getPaginatedTasks(inProgressTasks);
+      case "pendingreview":
+        return getPaginatedTasks(pendingReviewTasks);
       case "completed":
         return getPaginatedTasks(completedTasks);
       default:
@@ -148,6 +157,9 @@ const TaskManagementContent: React.FC = () => {
         break;
       case "inprogress":
         total = inProgressTasks.length;
+        break;
+      case "pendingreview":
+        total = pendingReviewTasks.length;
         break;
       case "completed":
         total = completedTasks.length;
@@ -216,6 +228,11 @@ const TaskManagementContent: React.FC = () => {
       id: "inprogress",
       label: "In Progress",
       count: inProgressTasks.length,
+    },
+    {
+      id: "pendingreview",
+      label: "Pending Review",
+      count: pendingReviewTasks.length,
     },
     {
       id: "completed",
@@ -464,7 +481,7 @@ const TaskManagementContent: React.FC = () => {
 
       <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm overflow-hidden">
         <div className="border-b border-gray-200 dark:border-zinc-700">
-          {/* Mobile view: 2x2 grid layout */}
+          {/* Mobile view: 2x3 grid layout */}
           <div className="grid grid-cols-2 md:hidden">
             {tabData.map((tab) => (
               <button
