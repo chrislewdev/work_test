@@ -478,5 +478,485 @@
     "deadline": "2025-04-25",
     "budget": 1100,
     "status": "to do"
+  },
+  {
+    "id": "31",
+    "title": "Design Email Newsletter Templates for Summer Sale",
+    "description": "Create 3 responsive email newsletter templates for our upcoming summer sale. Templates should highlight product discounts and include compelling call-to-action buttons.",
+    "owner": {
+      "id": "u123",
+      "name": "Sarah Johnson",
+      "profilePic": "/images/photos/image-1.jpg"
+    },
+    "topic": "Email Marketing",
+    "subject": "Sales Promotion",
+    "dateCreated": "2025-03-18",
+    "deadline": "2025-04-10",
+    "budget": 480,
+    "status": "to do"
+  },
+  {
+    "id": "32",
+    "title": "Create Product Unboxing Video Series",
+    "description": "Produce a series of 4 product unboxing videos showcasing the premium packaging and first impressions of our luxury product line. Focus on the tactile experience.",
+    "owner": {
+      "id": "u456",
+      "name": "Michael Chen",
+      "profilePic": "/images/photos/image-2.jpg"
+    },
+    "topic": "Video Production",
+    "subject": "Luxury Products",
+    "dateCreated": "2025-03-14",
+    "deadline": "2025-04-22",
+    "budget": 850,
+    "status": "in progress"
+  },
+  {
+    "id": "33",
+    "title": "Develop Twitter Thread Strategy for Product Launch",
+    "description": "Create 10 interconnected Twitter threads that build anticipation for our new product launch. Include visual content, engagement questions, and strategic hashtags.",
+    "owner": {
+      "id": "u789",
+      "name": "Alex Rodriguez",
+      "profilePic": "/images/photos/image-3.jpg"
+    },
+    "topic": "Twitter",
+    "subject": "Product Launch",
+    "dateCreated": "2025-03-10",
+    "deadline": "2025-04-15",
+    "budget": 420,
+    "status": "completed"
+  },
+  {
+    "id": "34",
+    "title": "Create Virtual Reality Product Demo",
+    "description": "Develop a VR experience that allows customers to virtually try our products before purchasing. Demo should be immersive and highlight key product features.",
+    "owner": {
+      "id": "u234",
+      "name": "Emily Wong",
+      "profilePic": "/images/photos/image-4.jpg"
+    },
+    "topic": "VR Content",
+    "subject": "Product Demo",
+    "dateCreated": "2025-03-12",
+    "deadline": "2025-05-20",
+    "budget": 1800,
+    "status": "to do"
+  },
+  {
+    "id": "35",
+    "title": "Produce Behind-the-Scenes Manufacturing Documentary",
+    "description": "Film a short documentary showing the craftsmanship behind our manufacturing process. Highlight sustainable practices and quality control measures.",
+    "owner": {
+      "id": "u567",
+      "name": "David Kim",
+      "profilePic": "/images/photos/image-5.jpg"
+    },
+    "topic": "Video Production",
+    "subject": "Brand Story",
+    "dateCreated": "2025-03-05",
+    "deadline": "2025-04-28",
+    "budget": 1350,
+    "status": "in progress"
+  },
+  {
+    "id": "36",
+    "title": "Develop Facebook Ad Campaign for Spring Collection",
+    "description": "Create a comprehensive Facebook ad campaign featuring our spring collection. Develop ad copy, select imagery, and define targeting parameters for optimal performance.",
+    "owner": {
+      "id": "u890",
+      "name": "Olivia Martinez",
+      "profilePic": "/images/photos/image-1.jpg"
+    },
+    "topic": "Facebook Ads",
+    "subject": "Fashion",
+    "dateCreated": "2025-03-08",
+    "deadline": "2025-04-05",
+    "budget": 950,
+    "status": "completed"
+  },
+  {
+    "id": "37",
+    "title": "Create Educational Webinar Series for Software Product",
+    "description": "Develop and host a 4-part webinar series teaching users how to maximize our software product's capabilities. Include interactive demos and Q&A sessions.",
+    "owner": {
+      "id": "u345",
+      "name": "James Wilson",
+      "profilePic": "/images/photos/image-2.jpg"
+    },
+    "topic": "Webinar",
+    "subject": "Education",
+    "dateCreated": "2025-03-20",
+    "deadline": "2025-05-15",
+    "budget": 1200,
+    "status": "to do"
+  },
+  {
+    "id": "38",
+    "title": "Photograph Executive Team for Company Website",
+    "description": "Conduct a professional photo shoot for our executive team. Images will be used on the company website and in marketing materials. Style should be approachable yet professional.",
+    "owner": {
+      "id": "u678",
+      "name": "Sophia Lee",
+      "profilePic": "/images/photos/image-3.jpg"
+    },
+    "topic": "Photography",
+    "subject": "Corporate",
+    "dateCreated": "2025-03-17",
+    "deadline": "2025-04-10",
+    "budget": 750,
+    "status": "in progress"
+  },
+  {
+    "id": "39",
+    "title": "Create Infographics on Industry Statistics",
+    "description": "Design 5 infographics visualizing key industry statistics that position our company as a thought leader. Graphics should be shareable across multiple platforms.",
+    "owner": {
+      "id": "u901",
+      "name": "Ryan Jackson",
+      "profilePic": "/images/photos/image-4.jpg"
+    },
+    "topic": "Graphic Design",
+    "subject": "Data Visualization",
+    "dateCreated": "2025-03-11",
+    "deadline": "2025-04-17",
+    "budget": 600,
+    "status": "completed"
+  },
+  {
+    "id": "40",
+    "title": "Write Case Studies on Customer Success Stories",
+    "description": "Interview 3 high-profile customers and create detailed case studies showcasing how our products solved their business challenges. Include measurable results and testimonials.",
+    "owner": {
+      "id": "u456",
+      "name": "Mia Taylor",
+      "profilePic": "/images/photos/image-5.jpg"
+    },
+    "topic": "Content Writing",
+    "subject": "Case Studies",
+    "dateCreated": "2025-03-15",
+    "deadline": "2025-05-10",
+    "budget": 850,
+    "status": "to do"
+  },
+  {
+    "id": "41",
+    "title": "Create YouTube Pre-roll Ad for New Service",
+    "description": "Produce a 15-second YouTube pre-roll advertisement for our new subscription service. Ad should be attention-grabbing and communicate value proposition clearly.",
+    "owner": {
+      "id": "u789",
+      "name": "Noah Anderson",
+      "profilePic": "/images/photos/image-1.jpg"
+    },
+    "topic": "Video Ads",
+    "subject": "Service Promotion",
+    "dateCreated": "2025-03-09",
+    "deadline": "2025-04-12",
+    "budget": 900,
+    "status": "in progress"
+  },
+  {
+    "id": "42",
+    "title": "Develop Audio Podcast Ads for Sponsorship",
+    "description": "Create 3 different audio ad scripts for podcast sponsorships. Ads should be 30, 60, and 90 seconds in length and highlight different aspects of our products.",
+    "owner": {
+      "id": "u234",
+      "name": "Isabella Garcia",
+      "profilePic": "/images/photos/image-2.jpg"
+    },
+    "topic": "Audio Content",
+    "subject": "Advertising",
+    "dateCreated": "2025-03-22",
+    "deadline": "2025-04-20",
+    "budget": 500,
+    "status": "completed"
+  },
+  {
+    "id": "43",
+    "title": "Create Educational TikTok Series on Product Features",
+    "description": "Develop a 10-part TikTok series explaining complex product features in simple, engaging 60-second videos. Use creative visual effects and clear explanations.",
+    "owner": {
+      "id": "u567",
+      "name": "Ethan Phillips",
+      "profilePic": "/images/photos/image-3.jpg"
+    },
+    "topic": "TikTok",
+    "subject": "Education",
+    "dateCreated": "2025-03-16",
+    "deadline": "2025-05-01",
+    "budget": 750,
+    "status": "to do"
+  },
+  {
+    "id": "44",
+    "title": "Design Conference Booth Graphics and Displays",
+    "description": "Create all graphic elements for our upcoming industry conference booth. Includes backdrop design, digital display content, and promotional materials.",
+    "owner": {
+      "id": "u890",
+      "name": "Charlotte Brooks",
+      "profilePic": "/images/photos/image-4.jpg"
+    },
+    "topic": "Graphic Design",
+    "subject": "Event Marketing",
+    "dateCreated": "2025-03-10",
+    "deadline": "2025-04-25",
+    "budget": 1500,
+    "status": "in progress"
+  },
+  {
+    "id": "45",
+    "title": "Produce Customer Testimonial Video Series",
+    "description": "Film and edit 5 customer testimonial videos highlighting different use cases for our product. Each video should be 2-3 minutes and tell a compelling story.",
+    "owner": {
+      "id": "u345",
+      "name": "Benjamin Clark",
+      "profilePic": "/images/photos/image-5.jpg"
+    },
+    "topic": "Video Production",
+    "subject": "Testimonials",
+    "dateCreated": "2025-03-07",
+    "deadline": "2025-05-12",
+    "budget": 1200,
+    "status": "completed"
+  },
+  {
+    "id": "46",
+    "title": "Create Interactive Product Demonstration for Website",
+    "description": "Develop an interactive web experience that allows users to virtually explore our product's features. Should include animations and user-controlled elements.",
+    "owner": {
+      "id": "u123",
+      "name": "Sarah Johnson",
+      "profilePic": "/images/photos/image-1.jpg"
+    },
+    "topic": "Web Development",
+    "subject": "Product Demo",
+    "dateCreated": "2025-03-19",
+    "deadline": "2025-05-18",
+    "budget": 1800,
+    "status": "to do"
+  },
+  {
+    "id": "47",
+    "title": "Develop Social Media Contest Strategy",
+    "description": "Create a comprehensive social media contest strategy to boost engagement across platforms. Include contest mechanics, prize structure, and promotional plan.",
+    "owner": {
+      "id": "u678",
+      "name": "Sophia Lee",
+      "profilePic": "/images/photos/image-3.jpg"
+    },
+    "topic": "Social Media",
+    "subject": "Engagement",
+    "dateCreated": "2025-03-21",
+    "deadline": "2025-04-18",
+    "budget": 650,
+    "status": "in progress"
+  },
+  {
+    "id": "48",
+    "title": "Write Monthly Industry Newsletter Content",
+    "description": "Develop content for our monthly industry newsletter. Include market trends, product spotlights, and expert interviews. Each newsletter should be approximately 1200 words.",
+    "owner": {
+      "id": "u789",
+      "name": "Alex Rodriguez",
+      "profilePic": "/images/photos/image-3.jpg"
+    },
+    "topic": "Content Writing",
+    "subject": "Newsletter",
+    "dateCreated": "2025-03-13",
+    "deadline": "2025-04-02",
+    "budget": 400,
+    "status": "completed"
+  },
+  {
+    "id": "49",
+    "title": "Create Animated Explainer Video for New Feature",
+    "description": "Produce a 90-second animated explainer video for our newest software feature. Video should clearly demonstrate the feature's benefits and use cases.",
+    "owner": {
+      "id": "u901",
+      "name": "Ryan Jackson",
+      "profilePic": "/images/photos/image-4.jpg"
+    },
+    "topic": "Animation",
+    "subject": "Product Feature",
+    "dateCreated": "2025-03-18",
+    "deadline": "2025-05-08",
+    "budget": 1100,
+    "status": "to do"
+  },
+  {
+    "id": "50",
+    "title": "Develop Influencer Collaboration Campaign",
+    "description": "Create a comprehensive influencer campaign strategy targeting 10-15 industry influencers. Include outreach templates, collaboration guidelines, and tracking metrics.",
+    "owner": {
+      "id": "u234",
+      "name": "Emily Wong",
+      "profilePic": "/images/photos/image-4.jpg"
+    },
+    "topic": "Influencer Marketing",
+    "subject": "Campaign Strategy",
+    "dateCreated": "2025-03-15",
+    "deadline": "2025-04-30",
+    "budget": 1300,
+    "status": "in progress"
+  },
+  {
+    "id": "51",
+    "title": "Design Social Media Carousel for Product Features",
+    "description": "Create a visually engaging social media carousel that highlights the top 5 features of our flagship product. Each slide should showcase one feature with compelling visuals and concise copy.",
+    "owner": {
+      "id": "u123",
+      "name": "Sarah Johnson",
+      "profilePic": "/images/photos/image-1.jpg"
+    },
+    "topic": "Social Media",
+    "subject": "Product Features",
+    "dateCreated": "2025-03-25",
+    "deadline": "2025-04-08",
+    "budget": 450,
+    "status": "pending review"
+  },
+  {
+    "id": "52",
+    "title": "Produce Customer Journey Video Series",
+    "description": "Create a 3-part video series documenting the customer journey with our product, from discovery to purchase to ongoing usage. Each video should be 3-5 minutes and include real customer interviews.",
+    "owner": {
+      "id": "u456",
+      "name": "Michael Chen",
+      "profilePic": "/images/photos/image-2.jpg"
+    },
+    "topic": "Video Production",
+    "subject": "Customer Experience",
+    "dateCreated": "2025-03-18",
+    "deadline": "2025-04-15",
+    "budget": 1200,
+    "status": "pending review"
+  },
+  {
+    "id": "53",
+    "title": "Write Technical White Paper on Industry Innovation",
+    "description": "Research and write a 15-page technical white paper on how our technology is driving innovation in the industry. Include case studies, data analysis, and future projections.",
+    "owner": {
+      "id": "u345",
+      "name": "James Wilson",
+      "profilePic": "/images/photos/image-2.jpg"
+    },
+    "topic": "Content Writing",
+    "subject": "Technical",
+    "dateCreated": "2025-03-10",
+    "deadline": "2025-04-10",
+    "budget": 950,
+    "status": "pending review"
+  },
+  {
+    "id": "54",
+    "title": "Create Promotional GIFs for Product Launch",
+    "description": "Design a series of 8 animated GIFs showcasing different aspects of our upcoming product. GIFs should be optimized for social media and convey key selling points in a visually compelling way.",
+    "owner": {
+      "id": "u678",
+      "name": "Sophia Lee",
+      "profilePic": "/images/photos/image-3.jpg"
+    },
+    "topic": "Graphic Design",
+    "subject": "Animation",
+    "dateCreated": "2025-03-22",
+    "deadline": "2025-04-05",
+    "budget": 700,
+    "status": "pending review"
+  },
+  {
+    "id": "55",
+    "title": "Develop Podcast Interview Series with Industry Experts",
+    "description": "Plan, schedule, and conduct 5 podcast interviews with industry experts discussing current trends and challenges. Each episode should be 30-45 minutes and position our brand as a thought leader.",
+    "owner": {
+      "id": "u234",
+      "name": "Isabella Garcia",
+      "profilePic": "/images/photos/image-2.jpg"
+    },
+    "topic": "Podcast",
+    "subject": "Thought Leadership",
+    "dateCreated": "2025-03-15",
+    "deadline": "2025-05-01",
+    "budget": 1100,
+    "status": "pending review"
+  },
+  {
+    "id": "56",
+    "title": "Create Before/After Demonstration Videos",
+    "description": "Produce 4 high-quality videos showing the before and after results of using our product. Videos should clearly demonstrate the transformation and benefits in a compelling visual format.",
+    "owner": {
+      "id": "u567",
+      "name": "Ethan Phillips",
+      "profilePic": "/images/photos/image-3.jpg"
+    },
+    "topic": "Video Production",
+    "subject": "Product Demonstration",
+    "dateCreated": "2025-03-20",
+    "deadline": "2025-04-18",
+    "budget": 850,
+    "status": "pending review"
+  },
+  {
+    "id": "57",
+    "title": "Design Print Catalog for Product Line",
+    "description": "Create a comprehensive 24-page product catalog showcasing our complete product line. Design should be elegant, on-brand, and include high-quality product photography with detailed descriptions.",
+    "owner": {
+      "id": "u890",
+      "name": "Charlotte Brooks",
+      "profilePic": "/images/photos/image-4.jpg"
+    },
+    "topic": "Graphic Design",
+    "subject": "Print Materials",
+    "dateCreated": "2025-03-12",
+    "deadline": "2025-04-20",
+    "budget": 1400,
+    "status": "pending review"
+  },
+  {
+    "id": "58",
+    "title": "Create Interactive Quiz for Lead Generation",
+    "description": "Develop an engaging interactive quiz that helps potential customers identify which of our products best suits their needs. Quiz should be visually appealing and provide valuable personalized recommendations.",
+    "owner": {
+      "id": "u901",
+      "name": "Ryan Jackson",
+      "profilePic": "/images/photos/image-4.jpg"
+    },
+    "topic": "Web Development",
+    "subject": "Lead Generation",
+    "dateCreated": "2025-03-17",
+    "deadline": "2025-04-15",
+    "budget": 800,
+    "status": "pending review"
+  },
+  {
+    "id": "59",
+    "title": "Write SEO-Optimized Product Descriptions",
+    "description": "Create detailed, SEO-optimized descriptions for our entire product catalog of 50 items. Each description should be 150-200 words and incorporate relevant keywords while maintaining engaging, persuasive content.",
+    "owner": {
+      "id": "u789",
+      "name": "Noah Anderson",
+      "profilePic": "/images/photos/image-1.jpg"
+    },
+    "topic": "Content Writing",
+    "subject": "SEO",
+    "dateCreated": "2025-03-23",
+    "deadline": "2025-04-25",
+    "budget": 650,
+    "status": "pending review"
+  },
+  {
+    "id": "60",
+    "title": "Develop AR Product Visualization Experience",
+    "description": "Create an augmented reality experience that allows customers to visualize our products in their space via mobile devices. The AR experience should be intuitive, visually accurate, and include interactive elements.",
+    "owner": {
+      "id": "u345",
+      "name": "Benjamin Clark",
+      "profilePic": "/images/photos/image-5.jpg"
+    },
+    "topic": "AR Development",
+    "subject": "Product Visualization",
+    "dateCreated": "2025-03-15",
+    "deadline": "2025-05-10",
+    "budget": 2000,
+    "status": "pending review"
   }
 ]
