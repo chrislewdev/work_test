@@ -13,11 +13,14 @@ import {
   Clock,
   DollarSign,
   BookOpen,
+  Download,
+  File,
 } from "lucide-react";
-import { Task } from "@/types/task";
 import { cn } from "@/app/lib/utils";
+import { Task } from "@/types/task";
 import { useResetOnUnmount } from "@/app/hooks/useStateReset";
 import useTaskStore from "@/stores/taskStore";
+import { formatDate } from "@/app/lib/formatDate";
 
 interface TaskDetailContentProps {
   taskId: string;
@@ -60,60 +63,97 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
     fetchTask();
   }, [taskId, fetchTaskById, resetState]);
 
-  // Format date to a more readable format
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return dateString;
-
-      const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      const month = months[date.getMonth()];
-      const day = date.getDate();
-      const year = date.getFullYear();
-
-      return `${month} ${day}, ${year}`;
-    } catch (error) {
-      return dateString;
-    }
+  // Handle task acceptance/removal
+  const handleTaskToggle = () => {
+    setIsAssignedToUser(!isAssignedToUser);
+    // In a real application, you would make an API call to assign/unassign the task
   };
+
+  // Mock task attachments (in a real app, these would come from the API)
+  const taskAttachments = [
+    {
+      id: "attach1",
+      name: "project-requirements.pdf",
+      size: "1.2 MB",
+      type: "pdf",
+      uploadedBy: "Owner",
+      date: "2025-03-15",
+    },
+    {
+      id: "attach2",
+      name: "design-guidelines.docx",
+      size: "0.8 MB",
+      type: "word",
+      uploadedBy: "Owner",
+      date: "2025-03-15",
+    },
+    {
+      id: "attach3",
+      name: "brand-assets.zip",
+      size: "5.4 MB",
+      type: "zip",
+      uploadedBy: "Owner",
+      date: "2025-03-15",
+    },
+  ];
 
   // Get topic color based on topic name
   const getTopicColor = (topic: string) => {
     const topicColors: Record<string, string> = {
-      "Social Media": "bg-blue-100 text-blue-800",
-      "Product Review": "bg-purple-100 text-purple-800",
-      TikTok: "bg-pink-100 text-pink-800",
-      YouTube: "bg-red-100 text-red-800",
-      LinkedIn: "bg-blue-200 text-blue-900",
-      "Live Stream": "bg-green-100 text-green-800",
-      Photography: "bg-amber-100 text-amber-800",
-      "Content Writing": "bg-indigo-100 text-indigo-800",
-      Pinterest: "bg-red-100 text-red-800",
-      Podcast: "bg-violet-100 text-violet-800",
-      "Video Production": "bg-orange-100 text-orange-800",
-      "Web Development": "bg-cyan-100 text-cyan-800",
+      "Social Media":
+        "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+      "Product Review":
+        "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+      TikTok:
+        "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+      YouTube: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      LinkedIn:
+        "bg-blue-200 text-blue-900 dark:bg-blue-900/40 dark:text-blue-300",
+      "Live Stream":
+        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+      Photography:
+        "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+      "Content Writing":
+        "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
+      Pinterest: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      Podcast:
+        "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
+      "Video Production":
+        "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+      "Web Development":
+        "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
     };
 
-    return topicColors[topic] || "bg-gray-100 text-gray-800";
+    return (
+      topicColors[topic] ||
+      "bg-gray-100 text-gray-800 dark:bg-zinc-700 dark:text-zinc-300"
+    );
   };
 
-  // Handle task assignment/removal
-  const handleTaskAssignment = () => {
-    setIsAssignedToUser(!isAssignedToUser);
-    // In a real app, you would save this to your backend
+  // Function to get file icon based on file type
+  const getFileIcon = (fileType: string) => {
+    switch (fileType.toLowerCase()) {
+      case "pdf":
+        return <File className="mr-2 text-red-500" size={18} />;
+      case "word":
+      case "doc":
+      case "docx":
+        return <File className="mr-2 text-blue-500" size={18} />;
+      case "excel":
+      case "xls":
+      case "xlsx":
+        return <File className="mr-2 text-green-500" size={18} />;
+      case "zip":
+      case "rar":
+        return <File className="mr-2 text-yellow-500" size={18} />;
+      case "image":
+      case "png":
+      case "jpg":
+      case "jpeg":
+        return <File className="mr-2 text-purple-500" size={18} />;
+      default:
+        return <File className="mr-2 text-gray-500" size={18} />;
+    }
   };
 
   if (loading) {
@@ -222,11 +262,56 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
             </div>
           </div>
 
-          {/* Attachments section */}
+          {/* Task Attachments section (provided by task owner) */}
           <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-6">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
               <Paperclip size={18} className="mr-2" />
-              Attachments
+              Task Attachments
+            </h2>
+
+            {taskAttachments.length > 0 ? (
+              <div className="border border-gray-200 dark:border-zinc-700 rounded-lg">
+                <ul className="divide-y divide-gray-200 dark:divide-zinc-700">
+                  {taskAttachments.map((file) => (
+                    <li
+                      key={file.id}
+                      className="p-4 hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center">
+                          {getFileIcon(file.type)}
+                          <div>
+                            <p className="text-sm font-medium text-gray-800 dark:text-white">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {file.size} • Uploaded {formatDate(file.date)}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                          aria-label={`Download ${file.name}`}
+                        >
+                          <Download size={18} />
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-zinc-700 rounded-lg">
+                No attachments provided for this task.
+              </div>
+            )}
+          </div>
+
+          {/* Product Attachments section (for the agent to upload) */}
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+              <Paperclip size={18} className="mr-2" />
+              Product Attachments
             </h2>
 
             {/* Placeholder for file upload */}
@@ -235,7 +320,7 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
                 <Plus size={24} className="text-blue-600 dark:text-blue-400" />
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-2">
-                Drag and drop files here, or click to browse
+                Drag and drop your deliverables here, or click to browse
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Maximum file size: 10MB
@@ -400,7 +485,7 @@ export default function TaskDetailContent({ taskId }: TaskDetailContentProps) {
               </button>
             )}
             <button
-              onClick={handleTaskAssignment}
+              onClick={handleTaskToggle}
               className={`w-full px-4 py-2 ${
                 isAssignedToUser
                   ? "bg-red-600 hover:bg-red-700"
