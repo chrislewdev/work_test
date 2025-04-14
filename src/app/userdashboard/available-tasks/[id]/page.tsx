@@ -14,6 +14,13 @@ export async function generateMetadata({
   };
 }
 
-export default function TaskDetailPage({ params }: { params: { id: string } }) {
-  return <TaskDetailPageClient taskId={params.id} />;
+export default async function TaskDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  // Await the params object to resolve
+  const resolvedParams = await Promise.resolve(params);
+
+  return <TaskDetailPageClient taskId={resolvedParams.id} />;
 }

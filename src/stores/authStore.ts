@@ -1,4 +1,4 @@
-// stores/authStore.ts
+// stores/authStore.ts - Fixed StoreApi Type Issue
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -215,7 +215,7 @@ const useAuthStore = create<AuthState>()(
         resetState: {} as any,
       };
 
-      // Generate reset functions using our factory
+      // Generate reset functions using our factory but with only the needed parts of StoreApi
       const storeApi = { setState: set, getState: get };
       const resetFunctions = createStoreResetFunctions<AuthState>(
         storeApi,

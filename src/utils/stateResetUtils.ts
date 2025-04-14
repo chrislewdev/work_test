@@ -82,9 +82,15 @@ function getLastKey<T>(getter: (state: T) => any): string | null {
   }
 }
 
+// Create a simplified StoreApi interface that only requires setState and getState
+interface SimplifiedStoreApi<T> {
+  setState: StoreApi<T>["setState"];
+  getState: () => T;
+}
+
 // Factory function to generate reset functions for a store
 export function createStoreResetFunctions<T>(
-  store: StoreApi<T>,
+  store: SimplifiedStoreApi<T>,
   asyncStateMap: Record<string, any>
 ) {
   const resetFunctions: Record<string, (options?: ResetOptions) => void> = {};

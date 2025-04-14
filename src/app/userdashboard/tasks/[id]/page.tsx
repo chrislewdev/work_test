@@ -1,4 +1,4 @@
-// app/userdashboard/tasks/[id]/page.tsx
+// src/app/userdashboard/tasks/[id]/page.tsx
 
 import { Metadata } from "next";
 import TaskDetailPageClient from "./client";
@@ -13,5 +13,8 @@ export default async function TaskDetailPage({
 }: {
   params: { id: string };
 }) {
-  return <TaskDetailPageClient taskId={params.id} />;
+  // Await the params object to resolve
+  const resolvedParams = await Promise.resolve(params);
+
+  return <TaskDetailPageClient taskId={resolvedParams.id} />;
 }
