@@ -8,8 +8,11 @@ export async function generateMetadata({
 }: {
   params: { id: string };
 }): Promise<Metadata> {
+  // Use the params to create a dynamic title
+  const taskId = params.id;
+
   return {
-    title: "Task Details | User Dashboard",
+    title: `Task #${taskId} | User Dashboard`,
     description: "View task details and accept it if interested",
   };
 }
