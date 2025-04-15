@@ -76,7 +76,7 @@ export default function TaskDetailPageClient({
   // Show loading state while fetching task
   if (loading && !currentTask) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6 w-[70%]">
         <Link
           href="/userdashboard/available-tasks"
           className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-4"
@@ -97,7 +97,7 @@ export default function TaskDetailPageClient({
   // Show error state
   if (error || !currentTask) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6 w-[70%]">
         <Link
           href="/userdashboard/available-tasks"
           className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 mb-4"
@@ -124,7 +124,7 @@ export default function TaskDetailPageClient({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 w-[70%]">
       {/* Back to tasks link */}
       <Link
         href="/userdashboard/available-tasks"

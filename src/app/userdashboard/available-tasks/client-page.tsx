@@ -459,10 +459,7 @@ export default function AvailableTasksClientPage({
       {!loading && !error && filteredTasks.length > 0 && (
         <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm overflow-hidden">
           <div className="p-6">
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-              style={{ minHeight: "900px" }}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 grid-rows-[repeat(3,280px)]">
               {currentTasks.map((task) => (
                 <AvailableTaskCard key={task.id} task={task} />
               ))}
@@ -491,17 +488,17 @@ export default function AvailableTasksClientPage({
                 Previous
               </button>
               <div className="flex gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
                   // Logic to show pages around the current page
                   let pageNum;
-                  if (totalPages <= 5) {
+                  if (totalPages <= 3) {
                     pageNum = i + 1;
-                  } else if (currentPage <= 3) {
+                  } else if (currentPage === 1) {
                     pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
+                  } else if (currentPage === totalPages) {
+                    pageNum = totalPages - 2 + i;
                   } else {
-                    pageNum = currentPage - 2 + i;
+                    pageNum = currentPage - 1 + i;
                   }
 
                   return (
