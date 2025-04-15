@@ -24,15 +24,30 @@ export default function TaskDetailPageClient({
   const { loading, error } = taskDetailState;
 
   const [isAssigned, setIsAssigned] = useState(false);
+  // Always start with loading true to ensure smooth transitions between tasks
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Reset detail state on component unmount - consistent pattern
+  // Reset detail state on component unmount - this will clear currentTask when navigating away
   useResetOnUnmount(resetState.taskDetail);
 
-  // Fetch task data when component mounts
+  // Fetch task data when component mounts or taskId changes
   useEffect(() => {
-    // Reset detail state before fetching to ensure clean slate - consistent pattern
+    // Reset detail state and set loading to true
     resetState.taskDetail();
-    fetchTaskById(taskId);
+    setIsLoading(true);
+
+    // Create an async function to fetch task
+    const loadTask = async () => {
+      try {
+        await fetchTaskById(taskId);
+      } finally {
+        // Set loading to false when fetch completes (success or error)
+        setIsLoading(false);
+      }
+    };
+
+    // Execute the fetch
+    loadTask();
   }, [fetchTaskById, taskId, resetState]);
 
   // Handle task acceptance/removal
@@ -73,8 +88,9 @@ export default function TaskDetailPageClient({
     );
   };
 
-  // Show loading state while fetching task
-  if (loading && !currentTask) {
+  // Show loading state during initial load OR transitions between tasks
+  // Note we use isLoading OR loading from the store to catch all loading states
+  if (isLoading || loading) {
     return (
       <div className="max-w-3xl mx-auto space-y-6 w-[70%]">
         <Link
